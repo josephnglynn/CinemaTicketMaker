@@ -17,6 +17,11 @@ class ViewerPage extends StatefulWidget {
 class _ViewerPageState extends State<ViewerPage> {
   @override
   Widget build(BuildContext context) {
+
+    Future.microtask(() async {
+     //TODO final result = await Tickets.generate(ticketData, paperSize, scale)
+    } );
+
     return Scaffold(
       body: SafeArea(
         child: CustomPaint(
@@ -43,7 +48,7 @@ class CoolPainter extends CustomPainter {
       Tickets.defaultTicketSize * 1,
       1,
       TicketData(
-          "Star Wars", participants, Settings.cinemaLong, Settings.cinemaShort, DateTime.now()),
+          movieName, participants, Settings.cinemaLong, Settings.cinemaShort, DateTime.now()),
       1,
     );
   }

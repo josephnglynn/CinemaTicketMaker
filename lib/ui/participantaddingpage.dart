@@ -1,6 +1,7 @@
 import 'package:cinema_ticket_maker/ui/viewerpage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ParticipantAddingPage extends StatefulWidget {
@@ -13,13 +14,12 @@ class ParticipantAddingPage extends StatefulWidget {
 }
 
 class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
-  List<String> participants = [];
+  int participants = 0;
   final controller = TextEditingController();
 
   void onSubmit(String value) {
     setState(() {
-      participants.add(value);
-      controller.clear();
+      participants = int.parse(value);
     });
   }
 
@@ -37,11 +37,18 @@ class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Please add the participants for ${widget.movieName}",
+                  "Please enter number of participants for ${widget.movieName}",
                   style: const TextStyle(
                     fontSize: 25,
                   ),
                   textAlign: TextAlign.center,
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text (
+                    "Only numbers!",
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20),
@@ -51,38 +58,11 @@ class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
                       controller: controller,
                       textAlign: TextAlign.center,
                       onSubmitted: onSubmit,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                     ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => onSubmit(controller.text),
-                  child: const Text("Add Participant"),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: participants.length,
-                    itemBuilder: (context, index) {
-                      return Slidable(
-                        actionPane: const SlidableDrawerActionPane(),
-                        child: SizedBox(
-                          height: 30,
-                          child: Text(
-                            participants[index],
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        secondaryActions: [
-                          IconSlideAction(
-                            color: Colors.red,
-                            icon: Icons.restore_from_trash,
-                            onTap: () => setState(() {
-                              participants.removeAt(index);
-                            }),
-                          )
-                        ],
-                      );
-                    },
                   ),
                 ),
               ],
@@ -101,7 +81,7 @@ class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) =>
-                        ViewerPage(widget.movieName, participants.length),
+                        ViewerPage(widget.movieName, participants),
                   ),
                 );
               },
