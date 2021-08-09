@@ -39,7 +39,7 @@ class _ViewerPageState extends State<ViewerPage> {
                   if (index % 2 == 0) {
                     return  SizedBox(
                       height: 20,
-                      child: Text("Page ${index / 2}"),
+                      child: Text("Page ${index / 2 + 1}"),
                     );
                   }
                   return Padding(
