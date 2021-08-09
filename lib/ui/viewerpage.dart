@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:cinema_ticket_maker/api/generatetickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
+import 'package:cinema_ticket_maker/types/pagesize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ViewerPage extends StatefulWidget {
   final String movieName;
@@ -17,42 +21,46 @@ class ViewerPage extends StatefulWidget {
 class _ViewerPageState extends State<ViewerPage> {
   @override
   Widget build(BuildContext context) {
-
-    Future.microtask(() async {
-     //TODO final result = await Tickets.generate(ticketData, paperSize, scale)
-    } );
-
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("View Tickets Before Printing"),
+      ),
       body: SafeArea(
-        child: CustomPaint(
-          painter: CoolPainter(widget.movieName, widget.participants),
+        child: FutureBuilder<List<ByteData>>(
+          future: Tickets.generate(
+            TicketData(widget.movieName, 100, Settings.cinemaLong,
+                Settings.cinemaShort, DateTime.now()),
+            "A4",
+            2,
+          ),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.data != null) {
+              return ListView.builder(
+                itemCount: snapshot.data!.length * 2,
+                itemBuilder: (context, index) {
+                  if (index % 2 == 0) {
+                    return  SizedBox(
+                      height: 20,
+                      child: Text("Page ${index / 2}"),
+                    );
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Image(
+                      image: MemoryImage(snapshot.data![(index - 1) ~/ 2].buffer
+                          .asUint8List()),
+                    ),
+                  );
+                },
+              );
+            }
+            return const Center(
+              child: Text("Loading . . ."),
+            );
+          },
         ),
       ),
     );
   }
-}
-
-class CoolPainter extends CustomPainter {
-  final String movieName;
-  final int participants;
-
-  CoolPainter(this.movieName, this.participants);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    double x = 0, y = 0;
-    Tickets.drawTicketComponent(
-      canvas,
-      x,
-      y,
-      Tickets.defaultTicketSize * 1,
-      1,
-      TicketData(
-          movieName, participants, Settings.cinemaLong, Settings.cinemaShort, DateTime.now()),
-      1,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

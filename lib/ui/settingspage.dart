@@ -1,6 +1,7 @@
 import 'package:cinema_ticket_maker/api/generatetickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/types/pagesize.dart';
+import 'package:cinema_ticket_maker/types/ticketcolors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -247,7 +248,7 @@ class TicketPainter extends CustomPainter {
         scale,
         TicketData("Star Wars", 1, Settings.cinemaLong,
             Settings.cinemaShort, DateTime.now()),
-        1);
+        );
   }
 
   @override

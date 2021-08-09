@@ -1,18 +1,10 @@
-import 'dart:convert';
 import 'dart:math';
 import 'dart:ui' as ui;
-import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/types/pagesize.dart';
+import 'package:cinema_ticket_maker/types/ticketcolors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-class _TicketDrawReturnType {
-  int count;
-  ByteData? byteData;
-
-  _TicketDrawReturnType(this.count, this.byteData);
-}
 
 class TicketSize {
   final double width;
@@ -25,101 +17,6 @@ class TicketSize {
         width * scale,
         height * scale,
       );
-}
-
-class TicketColors {
-  static late Color firstColorBackground;
-  static late Color lastColorBackground;
-  static late Color primaryText;
-  static late Color secondaryText;
-
-  static Future setFirstColorBackground(Color c) async {
-    firstColorBackground = c;
-    await Settings.setString(_firstColorBackgroundLocation, colorToJson(c));
-  }
-
-  static Future setLastColorBackground(Color c) async {
-    lastColorBackground = c;
-    await Settings.setString(_lastColorBackgroundLocation, colorToJson(c));
-  }
-
-  static Future setPrimaryTextColorBackground(Color c) async {
-    primaryText = c;
-    await Settings.setString(_primaryTextLocation, colorToJson(c));
-  }
-
-  static Future setSecondaryTextColorBackground(Color c) async {
-    secondaryText = c;
-    await Settings.setString(_secondaryTextLocation, colorToJson(c));
-  }
-
-  static String colorToJson(Color value) {
-    Map<String, dynamic> map = {
-      "r": value.red,
-      "g": value.green,
-      "b": value.blue,
-      "o": value.opacity,
-    };
-    return jsonEncode(map);
-  }
-
-  static Color colorFromJson(String value) {
-    Map<String, dynamic> map = jsonDecode(value);
-    return Color.fromRGBO(map["r"], map["g"], map["b"], map["o"]);
-  }
-
-  static Paint generateBackground(Rect rect) {
-    Paint paint = Paint();
-    paint.shader = ui.Gradient.linear(
-      Offset(rect.top, rect.left),
-      Offset(rect.right, rect.bottom),
-      [
-        firstColorBackground,
-        lastColorBackground,
-      ],
-    );
-
-    return paint;
-  }
-
-  static Future init() async {
-    var files = Settings.getString(_firstColorBackgroundLocation);
-
-    if (files != null) {
-      firstColorBackground = colorFromJson(files);
-    } else {
-      firstColorBackground = const Color.fromRGBO(232, 139, 58, 1);
-    }
-
-    files = Settings.getString(_lastColorBackgroundLocation);
-
-    if (files != null) {
-      lastColorBackground = colorFromJson(files);
-    } else {
-      lastColorBackground = const Color.fromRGBO(170, 54, 232, 1);
-    }
-
-    files = Settings.getString(_primaryTextLocation);
-
-    if (files != null) {
-      primaryText = colorFromJson(files);
-    } else {
-      primaryText = Colors.black;
-    }
-
-    files = Settings.getString(_secondaryTextLocation);
-
-    if (files != null) {
-      secondaryText = colorFromJson(files);
-    } else {
-      secondaryText = Colors.white;
-    }
-  }
-
-  static const _firstColorBackgroundLocation = "first-color-background";
-  static const _lastColorBackgroundLocation = "last-color-background";
-  static const _primaryTextLocation = "primaryText";
-  static const _secondaryTextLocation = "secondaryText";
 }
 
 class CustomTextPainter extends TextPainter {
@@ -177,7 +74,7 @@ class TicketData {
   final String cinemaName;
   final String cinemaNameShort;
   final DateTime date;
-  final int participants;
+  int participants;
 
   TicketData(this.movieName, this.participants, this.cinemaName,
       this.cinemaNameShort, this.date);
@@ -201,17 +98,18 @@ class Tickets {
 
   static void drawTicketComponent(
     Canvas canvas,
-    double x,
-    double y,
+    double moveXBy,
+    double moveYBy,
     TicketSize ticketSize,
     double scale,
     TicketData ticketData,
-    int indexOfParticipant,
   ) {
+    canvas.translate(moveXBy, moveYBy);
+
     //BACKGROUND
     final background = Rect.fromLTWH(
-      x,
-      y,
+      0,
+      0,
       ticketSize.width,
       ticketSize.height,
     );
@@ -317,113 +215,64 @@ class Tickets {
         canvas,
         Offset((ticketSize.height - textPainter.width) / 2,
             -ticketSize.width + textPainter.height));
-  }
 
-  static Future<ByteData?> _draw(
-    PageResolution pageResolution,
-    bool isHorizontal,
-    TicketSize ticketSize,
-    double scale,
-    TicketData ticketData,
-  ) async {
-    ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-    Canvas canvas = Canvas(pictureRecorder);
-
-    double x = 0, y = 0;
-    int i = 0;
-
-    if (isHorizontal) {
-      while (y + ticketSize.height < pageResolution.height &&
-          i < ticketData.participants) {
-        drawTicketComponent(canvas, x, y, ticketSize, scale, ticketData, i);
-        x += ticketSize.width;
-        if (x > pageResolution.width) {
-          y += ticketSize.height;
-          x = ticketSize.width;
-        }
-        ++i;
-      }
-    } else {
-      while (y + ticketSize.width < pageResolution.height &&
-          i < ticketData.participants) {
-        drawTicketComponent(canvas, x, y, ticketSize, scale, ticketData, i);
-        x += ticketSize.height;
-        if (x > pageResolution.width) {
-          y += ticketSize.width;
-          x = ticketSize.height;
-        }
-        ++i;
-      }
-    }
-
-    final ui.Picture result = pictureRecorder.endRecording();
-    final image =
-        await result.toImage(pageResolution.width, pageResolution.height);
-    final ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.png);
-
-    return byteData;
-  }
-
-  static Future<_TicketDrawReturnType> _workOutCount(
-    TicketData ticketData,
-    PageResolution pageResolution,
-    TicketSize ticketSize,
-    double scale,
-  ) async {
-    double x = 0;
-    double y = 0;
-    //try horizontally
-    int horizontalCount = -1;
-    while (y + ticketSize.height < pageResolution.height) {
-      horizontalCount += 1;
-      x += ticketSize.width;
-      if (x > pageResolution.width) {
-        y += ticketSize.height;
-        x = ticketSize.width;
-      }
-    }
-
-    //try vertically
-    int verticalCount = -1;
-    while (y + ticketSize.width < pageResolution.height) {
-      verticalCount += 1;
-      x += ticketSize.height;
-      if (x > pageResolution.width) {
-        y += ticketSize.width;
-        x = ticketSize.height;
-      }
-    }
-
-    bool horizontal = horizontalCount > verticalCount;
-    int largeCount = horizontal ? horizontalCount : verticalCount;
-
-    return _TicketDrawReturnType(
-      largeCount,
-      await _draw(pageResolution, horizontal, ticketSize, scale, ticketData),
-    );
+    canvas.rotate(_degreesToRadians(-90));
+    canvas.translate(-textPainter.height, 0);
   }
 
   static Future<List<ByteData>> generate(
       TicketData ticketData, String paperSize, double scale) async {
+    List<ByteData> result = [];
+
     //Find Paper Size
-    final pageResolution =
-        pageSizes[paperSize] ?? const PageResolution(2480, 3508);
-    int count = ticketData.participants;
+    final pageResolution = pageSizes[paperSize] ??
+        const PageResolution(
+          2480,
+          3508,
+        );
 
-    final TicketSize ticketSize = defaultTicketSize * scale;
+    final tSize = Tickets.defaultTicketSize * scale;
 
-    List<ByteData> images = [];
 
-    while (count > 0) {
-      _TicketDrawReturnType _ticketDrawReturnType =
-          await _workOutCount(ticketData, pageResolution, ticketSize, scale);
+    while(ticketData.participants > 0) {
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      double x = 0, y = 0, pX = 0, pY = 0;
 
-      count -= _ticketDrawReturnType.count;
-      if (_ticketDrawReturnType.byteData != null) {
-        images.add(_ticketDrawReturnType.byteData!);
+      while (ticketData.participants > 0) {
+
+        Tickets.drawTicketComponent(
+          canvas,
+          x - pX,
+          y - pY,
+          tSize,
+          scale,
+         ticketData,
+        );
+
+        ticketData.participants -= 1;
+        pX = x;
+        pY = y;
+
+        x += tSize.width;
+        if (x + tSize.width > pageResolution.width) {
+          x = 0;
+          y += tSize.height;
+          if( y + tSize.height > pageResolution.height) {
+            break;
+          }
+        }
       }
+
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(
+        pageResolution.width,
+        pageResolution.height,
+      );
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (data != null) result.add(data);
     }
-    return images;
+
+    return result;
   }
 }

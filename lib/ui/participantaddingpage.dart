@@ -18,9 +18,16 @@ class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
   final controller = TextEditingController();
 
   void onSubmit(String value) {
+    if (value.isEmpty) return;
     setState(() {
       participants = int.parse(value);
     });
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            ViewerPage(widget.movieName, participants),
+      ),
+    );
   }
 
   @override
@@ -29,6 +36,9 @@ class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
     double calculations = width > 400 ? width / 2 : width - 40;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Input number of participants"),
+      ),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -77,14 +87,7 @@ class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
           children: [
             TextButton(
               child: const Text("Continue"),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ViewerPage(widget.movieName, participants),
-                  ),
-                );
-              },
+              onPressed: () => onSubmit(controller.text),
             ),
           ],
         ),
