@@ -12,7 +12,7 @@ class TicketSize {
 
   const TicketSize(this.width, this.height);
 
-  @override
+
   TicketSize operator *(double scale) => TicketSize(
         width * scale,
         height * scale,
@@ -83,7 +83,7 @@ class TicketData {
 class Tickets {
   static const defaultTicketSize = TicketSize(350, 150);
 
-  static double _radiansToDegrees(double radian) => radian * 180 / pi;
+  //static double _radiansToDegrees(double radian) => radian * 180 / pi;
 
   static double _degreesToRadians(double degree) => degree * pi / 180;
 

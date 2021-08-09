@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
-
 import 'package:cinema_ticket_maker/types/pagesize.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

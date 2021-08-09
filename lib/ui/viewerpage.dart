@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:cinema_ticket_maker/api/generatetickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
-import 'package:cinema_ticket_maker/types/pagesize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

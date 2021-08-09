@@ -1,4 +1,3 @@
-import 'package:cinema_ticket_maker/api/generatetickets.dart';
 import 'package:cinema_ticket_maker/types/ticketcolors.dart';
 import 'package:cinema_ticket_maker/ui/homepage.dart';
 import 'package:flutter/material.dart';
