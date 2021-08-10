@@ -7,7 +7,9 @@ import 'package:cinema_ticket_maker/types/ticketsize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class CustomTextPainter extends TextPainter {
   CustomTextPainter({
@@ -263,5 +265,35 @@ class Tickets {
     }
 
     return result;
+  }
+
+  static Future printTickets(List<ByteData> data, {bool share = false}) async {
+    final doc = pw.Document();
+
+    for (var element in data) {
+      final image = pw.MemoryImage(element.buffer.asUint8List());
+      doc.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Center(child: pw.Image(image));
+          },
+          pageTheme:  const pw.PageTheme(
+            orientation: pw.PageOrientation.landscape,
+            margin: pw.EdgeInsets.zero,
+          ),
+        ),
+      );
+    }
+
+    if (share) {
+      return await Printing.sharePdf(
+        bytes: await doc.save(),
+        filename: "Cinema tickets",
+      );
+    }
+
+    await Printing.layoutPdf(
+      onLayout: (format) async => doc.save(),
+    );
   }
 }

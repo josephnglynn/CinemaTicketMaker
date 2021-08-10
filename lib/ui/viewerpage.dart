@@ -1,4 +1,4 @@
-import 'package:cinema_ticket_maker/api/generatetickets.dart';
+import 'package:cinema_ticket_maker/api/tickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -75,7 +75,7 @@ class _ViewerPageState extends State<ViewerPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
-            onPressed: () {},
+            onPressed: ()async => data != null ? await Tickets.printTickets(data!) : (){},
             child: const Text("Print"),
           )
         ],
