@@ -1,5 +1,6 @@
 import 'package:cinema_ticket_maker/api/generatetickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
+import 'package:cinema_ticket_maker/types/pageresolution.dart';
 import 'package:cinema_ticket_maker/types/pagesize.dart';
 import 'package:cinema_ticket_maker/types/ticketcolors.dart';
 import 'package:flutter/cupertino.dart';

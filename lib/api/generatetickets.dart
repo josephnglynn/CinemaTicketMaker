@@ -1,22 +1,13 @@
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'package:cinema_ticket_maker/types/pageresolution.dart';
 import 'package:cinema_ticket_maker/types/pagesize.dart';
 import 'package:cinema_ticket_maker/types/ticketcolors.dart';
+import 'package:cinema_ticket_maker/types/ticketsize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class TicketSize {
-  final double width;
-  final double height;
-
-  const TicketSize(this.width, this.height);
-
-  TicketSize operator *(double scale) => TicketSize(
-        width * scale,
-        height * scale,
-      );
-}
 
 class CustomTextPainter extends TextPainter {
   CustomTextPainter({
