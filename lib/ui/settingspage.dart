@@ -46,6 +46,87 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    List<Widget> children = [
+      TextButton(
+        onPressed: () {
+          getColor(
+            TicketColors.firstColorBackground,
+                (value) => setState(() {
+              TicketColors.setFirstColorBackground(value);
+            }),
+          );
+        },
+        child: Text(
+          "Change first color",
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyText1!.color,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          backgroundColor: TicketColors.firstColorBackground,
+        ),
+      ),
+      TextButton(
+        onPressed: () {
+          getColor(
+            TicketColors.lastColorBackground,
+                (value) => setState(() {
+              TicketColors.setLastColorBackground(value);
+            }),
+          );
+        },
+        child: Text(
+          "Change second color",
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyText1!.color,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          backgroundColor: TicketColors.lastColorBackground,
+        ),
+      ),
+      TextButton(
+        onPressed: () {
+          getColor(
+            TicketColors.primaryText,
+                (value) => setState(() {
+              TicketColors.setPrimaryTextColorBackground(value);
+            }),
+          );
+        },
+        child: const Text(
+          "Change primary text color",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          backgroundColor: TicketColors.primaryText,
+        ),
+      ),
+      TextButton(
+        onPressed: () {
+          getColor(
+            TicketColors.secondaryText,
+                (value) => setState(() {
+              TicketColors.setSecondaryTextColorBackground(value);
+            }),
+          );
+        },
+        child: const Text(
+          "Change secondary text color",
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          backgroundColor: TicketColors.secondaryText,
+        ),
+      ),
+    ];
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
@@ -116,87 +197,10 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Padding(
               padding: const EdgeInsets.all(20),
-              child: Row(
+              child:  MediaQuery.of(context).size.width > MediaQuery.of(context).size.height ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      getColor(
-                        TicketColors.firstColorBackground,
-                        (value) => setState(() {
-                          TicketColors.setFirstColorBackground(value);
-                        }),
-                      );
-                    },
-                    child: Text(
-                      "Change first color",
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyText1!.color,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: TicketColors.firstColorBackground,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      getColor(
-                        TicketColors.lastColorBackground,
-                        (value) => setState(() {
-                          TicketColors.setLastColorBackground(value);
-                        }),
-                      );
-                    },
-                    child: Text(
-                      "Change second color",
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyText1!.color,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: TicketColors.lastColorBackground,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      getColor(
-                        TicketColors.primaryText,
-                        (value) => setState(() {
-                          TicketColors.setPrimaryTextColorBackground(value);
-                        }),
-                      );
-                    },
-                    child: const Text(
-                      "Change primary text color",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: TicketColors.primaryText,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      getColor(
-                        TicketColors.secondaryText,
-                        (value) => setState(() {
-                          TicketColors.setSecondaryTextColorBackground(value);
-                        }),
-                      );
-                    },
-                    child: const Text(
-                      "Change secondary text color",
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: TicketColors.secondaryText,
-                    ),
-                  ),
-                ],
-              ),
+                children: children,
+              ) : Column(children: children,),
             ),
             const Text(
               "Cinema short name",

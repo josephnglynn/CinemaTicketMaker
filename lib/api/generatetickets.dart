@@ -12,7 +12,6 @@ class TicketSize {
 
   const TicketSize(this.width, this.height);
 
-
   TicketSize operator *(double scale) => TicketSize(
         width * scale,
         height * scale,
@@ -233,24 +232,23 @@ class Tickets {
 
     final tSize = Tickets.defaultTicketSize * scale;
 
-
-    while(ticketData.participants > 0) {
+    while (ticketData.participants > 0) {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       double x = 0, y = 0, pX = 0, pY = 0;
 
       while (ticketData.participants > 0) {
-
         Tickets.drawTicketComponent(
           canvas,
           x - pX,
           y - pY,
           tSize,
           scale,
-         ticketData,
+          ticketData,
         );
 
         ticketData.participants -= 1;
+
         pX = x;
         pY = y;
 
@@ -258,7 +256,7 @@ class Tickets {
         if (x + tSize.width > pageResolution.width) {
           x = 0;
           y += tSize.height;
-          if( y + tSize.height > pageResolution.height) {
+          if (y + tSize.height > pageResolution.height) {
             break;
           }
         }

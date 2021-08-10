@@ -11,9 +11,20 @@ void main() async {
   await TicketColors.init();
 
   runApp(
-    const MaterialApp(
+    MaterialApp(
       title: "Cinema Ticket Maker",
-      home: HomePage(),
+       theme: ThemeData.light().copyWith(
+         appBarTheme: const AppBarTheme(
+           backgroundColor: Colors.white
+         )
+       ),
+      darkTheme: ThemeData.dark().copyWith(
+          appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.black
+          )
+      ),
+      themeMode: ThemeMode.system,
+      home: const HomePage(),
     ),
   );
 }
