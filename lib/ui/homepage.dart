@@ -1,4 +1,6 @@
-import 'package:cinema_ticket_maker/ui/participantaddingpage.dart';
+import 'package:cinema_ticket_maker/api/settings.dart';
+import 'package:cinema_ticket_maker/ui/participantcount.dart';
+import 'package:cinema_ticket_maker/ui/participantname.dart';
 import 'package:cinema_ticket_maker/ui/settingspage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +31,9 @@ class _HomePageState extends State<HomePage> {
       return;
     }
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ParticipantAddingPage(value),
+      builder: (context) => Settings.includeNames
+          ? ParticipantNamePage(value)
+          : ParticipantCountPage(value),
     ));
   }
 

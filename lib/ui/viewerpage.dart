@@ -8,8 +8,9 @@ import 'package:flutter/services.dart';
 class ViewerPage extends StatefulWidget {
   final String movieName;
   final int participants;
+  final List<String>? participantNames;
 
-  const ViewerPage(this.movieName, this.participants, {Key? key})
+  const ViewerPage(this.movieName, this.participants,  {Key? key, this.participantNames})
       : super(key: key);
 
   @override
@@ -35,7 +36,8 @@ class _ViewerPageState extends State<ViewerPage> {
         DateTime.now(),
       ),
       "A4",
-      2,
+      Settings.ticketScale,
+      widget.participantNames,
     );
     setState(() {});
   }
@@ -54,7 +56,7 @@ class _ViewerPageState extends State<ViewerPage> {
                   if (index % 2 == 0) {
                     return SizedBox(
                       height: 20,
-                      child: Text("Page ${index / 2 + 1}"),
+                      child: Text("Page ${index ~/ 2 + 1}"),
                     );
                   }
                   return Padding(
@@ -75,7 +77,7 @@ class _ViewerPageState extends State<ViewerPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
-            onPressed: ()async => data != null ? await Tickets.printTickets(data!) : (){},
+            onPressed: () async => data != null ? await Tickets.printTickets(data!) : (){},
             child: const Text("Print"),
           )
         ],

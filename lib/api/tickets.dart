@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/types/pageresolution.dart';
 import 'package:cinema_ticket_maker/types/pagesize.dart';
 import 'package:cinema_ticket_maker/types/ticketcolors.dart';
@@ -7,7 +8,6 @@ import 'package:cinema_ticket_maker/types/ticketsize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
@@ -37,7 +37,7 @@ class CustomTextPainter extends TextPainter {
         );
 
   void fitCertainWidth(double widthOfConstraint) {
-    double decrease = 0.01;
+    double decrease = 0.05;
     layout();
     if (width < widthOfConstraint) return;
     final content = text!.toPlainText();
@@ -95,6 +95,7 @@ class Tickets {
     TicketSize ticketSize,
     double scale,
     TicketData ticketData,
+  String? name
   ) {
     canvas.translate(moveXBy, moveYBy);
 
@@ -210,10 +211,24 @@ class Tickets {
 
     canvas.rotate(_degreesToRadians(-90));
     canvas.translate(-textPainter.height, 0);
+
+    if (Settings.includeNames && name != null) {
+
+      textPainter.text =
+          TextSpan(text: "Name", style: style);
+      textPainter.fitCertainWidth(background.width / 10);
+      textPainter.paint(canvas, const Offset(225, 49) * scale);
+
+      style = style.copyWith(fontSize: 30 * scale);
+      textPainter.text =
+          TextSpan(text: name, style: style);
+      textPainter.fitCertainWidth(background.width / 4);
+      textPainter.paint(canvas, const Offset(225,68) * scale);
+    }
   }
 
   static Future<List<ByteData>> generate(
-      TicketData ticketData, String paperSize, double scale) async {
+      TicketData ticketData, String paperSize, double scale, List<String>? name) async {
     List<ByteData> result = [];
 
     //Find Paper Size
@@ -224,6 +239,7 @@ class Tickets {
         );
 
     final tSize = Tickets.defaultTicketSize * scale;
+
 
     while (ticketData.participants > 0) {
       final recorder = ui.PictureRecorder();
@@ -238,6 +254,7 @@ class Tickets {
           tSize,
           scale,
           ticketData,
+          name != null ? name[ticketData.participants - 1] : null,
         );
 
         ticketData.participants -= 1;
@@ -267,7 +284,7 @@ class Tickets {
     return result;
   }
 
-  static Future printTickets(List<ByteData> data, {bool share = false}) async {
+  static Future printTickets(List<ByteData> data) async {
     final doc = pw.Document();
 
     for (var element in data) {
@@ -285,7 +302,7 @@ class Tickets {
       );
     }
 
-    if (share) {
+    if (Settings.shareInsteadOfPrint) {
       return await Printing.sharePdf(
         bytes: await doc.save(),
         filename: "Cinema tickets",

@@ -6,6 +6,9 @@ class Settings {
   static late SharedPreferences _prefs;
   static late String cinemaLong;
   static late String cinemaShort;
+  static late bool shareInsteadOfPrint;
+  static late bool includeNames;
+  static late double ticketScale;
 
   static String? getString(String key) => _prefs.getString(key);
 
@@ -35,15 +38,25 @@ class Settings {
     await setString(_cinemaShortLocation, value);
   }
 
-  static Future setCinemaLong(String value)async {
+  static Future setCinemaLong(String value) async {
     cinemaLong = value;
-   await  setString(_cinemaLongLocation, value);
+    await setString(_cinemaLongLocation, value);
   }
 
-  static double getTicketScale() => _prefs.getDouble(_ticketScaleLocation) ?? 1;
+
 
   static Future setTicketScale(double s) async =>
       await _prefs.setDouble(_ticketScaleLocation, s);
+
+  static Future setIncludeNamesLocation(bool value) async {
+    includeNames = value;
+    await _prefs.setBool(_includeNamesLocation, value);
+  }
+
+  static Future setShareInsteadOfPrint(bool value) async {
+    shareInsteadOfPrint = value;
+    await _prefs.setBool(_shareIOPL, value);
+  }
 
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -51,10 +64,15 @@ class Settings {
         .map((e) => pageSizes[e.name] = e.pageResolution);
     cinemaLong = getString(_cinemaLongLocation) ?? "ODEON CINEMAS";
     cinemaShort = getString(_cinemaShortLocation) ?? "ODEON";
+    shareInsteadOfPrint = _prefs.getBool(_shareIOPL) ?? false;
+    includeNames = _prefs.getBool(_includeNamesLocation) ?? false;
+    ticketScale =  _prefs.getDouble(_ticketScaleLocation) ?? 2;
   }
 
   static const _customPageSizeLocation = "custom_page_size";
   static const _ticketScaleLocation = "ticket_settings";
   static const _cinemaShortLocation = "cinema_short_location";
   static const _cinemaLongLocation = "cinema_long_location";
+  static const _shareIOPL = "sInOP";
+  static const _includeNamesLocation = "include_name_location";
 }

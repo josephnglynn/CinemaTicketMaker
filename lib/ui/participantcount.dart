@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 
-class ParticipantAddingPage extends StatefulWidget {
+class ParticipantCountPage extends StatefulWidget {
   final String movieName;
 
-  const ParticipantAddingPage(this.movieName, {Key? key}) : super(key: key);
+  const ParticipantCountPage(this.movieName, {Key? key}) : super(key: key);
 
   @override
-  _ParticipantAddingPageState createState() => _ParticipantAddingPageState();
+  _ParticipantCountPageState createState() => _ParticipantCountPageState();
 }
 
-class _ParticipantAddingPageState extends State<ParticipantAddingPage> {
+class _ParticipantCountPageState extends State<ParticipantCountPage> {
   int participants = 0;
   final controller = TextEditingController();
 

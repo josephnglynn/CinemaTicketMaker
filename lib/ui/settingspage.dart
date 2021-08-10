@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cinema_ticket_maker/api/tickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/types/pageresolution.dart';
@@ -19,7 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
     fontSize: 30,
   );
 
-  double ticketScale = Settings.getTicketScale();
+  double ticketScale = Settings.ticketScale;
   final shortNameController = TextEditingController(text: Settings.cinemaShort);
   final longNameController = TextEditingController(text: Settings.cinemaLong);
 
@@ -47,13 +49,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-
     List<Widget> children = [
       TextButton(
         onPressed: () {
           getColor(
             TicketColors.firstColorBackground,
-                (value) => setState(() {
+            (value) => setState(() {
               TicketColors.setFirstColorBackground(value);
             }),
           );
@@ -72,7 +73,7 @@ class _SettingsPageState extends State<SettingsPage> {
         onPressed: () {
           getColor(
             TicketColors.lastColorBackground,
-                (value) => setState(() {
+            (value) => setState(() {
               TicketColors.setLastColorBackground(value);
             }),
           );
@@ -91,7 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
         onPressed: () {
           getColor(
             TicketColors.primaryText,
-                (value) => setState(() {
+            (value) => setState(() {
               TicketColors.setPrimaryTextColorBackground(value);
             }),
           );
@@ -110,7 +111,7 @@ class _SettingsPageState extends State<SettingsPage> {
         onPressed: () {
           getColor(
             TicketColors.secondaryText,
-                (value) => setState(() {
+            (value) => setState(() {
               TicketColors.setSecondaryTextColorBackground(value);
             }),
           );
@@ -126,7 +127,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     ];
-
 
     return Scaffold(
       appBar: AppBar(
@@ -171,7 +171,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 IconButton(
                   onPressed: () async {
                     setState(() {
-                      ticketScale -= 0.01;
+                      ticketScale -= 0.02;
                     });
                     await Settings.setTicketScale(ticketScale);
                   },
@@ -181,7 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 IconButton(
                   onPressed: () async {
                     setState(() {
-                      ticketScale += 0.01;
+                      ticketScale += 0.02;
                     });
                     await Settings.setTicketScale(ticketScale);
                   },
@@ -189,8 +189,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 100,
+            SizedBox(
+              height: 50 * ticketScale,
             ),
             const Text(
               "Ticket background colors",
@@ -198,10 +198,15 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Padding(
               padding: const EdgeInsets.all(20),
-              child:  MediaQuery.of(context).size.width > MediaQuery.of(context).size.height ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: children,
-              ) : Column(children: children,),
+              child: MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: children,
+                    )
+                  : Column(
+                      children: children,
+                    ),
             ),
             const Text(
               "Cinema short name",
@@ -230,6 +235,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() {});
               },
             ),
+            const SizedBox(
+              height: 50,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Add people's name to ticket",
+                  style: headerStyle,
+                ),
+                Switch(
+                  value: Settings.includeNames,
+                  onChanged: (value) async {
+                    await Settings.setIncludeNamesLocation(value);
+                    setState(() {});
+                  },
+                ),
+              ],
+            )
           ],
         ),
       ),
@@ -246,14 +270,15 @@ class TicketPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     double x = 0, y = 0;
     Tickets.drawTicketComponent(
-        canvas,
-        x,
-        y,
-        Tickets.defaultTicketSize * scale,
-        scale,
-        TicketData("Star Wars", 1, Settings.cinemaLong,
-            Settings.cinemaShort, DateTime.now()),
-        );
+      canvas,
+      x,
+      y,
+      Tickets.defaultTicketSize * scale,
+      scale,
+      TicketData("Star Wars", 1, Settings.cinemaLong, Settings.cinemaShort,
+          DateTime.now(),),
+      "John Smith"
+    );
   }
 
   @override
