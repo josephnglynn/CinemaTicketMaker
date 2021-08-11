@@ -24,7 +24,8 @@ class _SettingsPageState extends State<SettingsPage> {
   double ticketScale = Settings.ticketScale;
   final shortNameController = TextEditingController(text: Settings.cinemaShort);
   final longNameController = TextEditingController(text: Settings.cinemaLong);
-  final digitForRefController = TextEditingController(text: Settings.digitsForReferenceNumber.toString());
+  final digitForRefController =
+      TextEditingController(text: Settings.digitsForReferenceNumber.toString());
 
   void getColor(Color value, Function(Color) func) {
     showDialog(
@@ -169,24 +170,36 @@ class _SettingsPageState extends State<SettingsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
+                TextButton(
                   onPressed: () async {
                     setState(() {
                       ticketScale -= 0.02;
                     });
                     await Settings.setTicketScale(ticketScale);
                   },
-                  icon: const Icon(Icons.arrow_back_ios),
+                  onLongPress: () async {
+                    setState(() {
+                      ticketScale -= 0.2;
+                    });
+                    await Settings.setTicketScale(ticketScale);
+                  },
+                  child: Icon(Icons.arrow_back_ios,  color: Theme.of(context).textTheme.bodyText1!.color,),
                 ),
                 Text("Scale: $ticketScale"),
-                IconButton(
+                TextButton(
                   onPressed: () async {
                     setState(() {
                       ticketScale += 0.02;
                     });
                     await Settings.setTicketScale(ticketScale);
                   },
-                  icon: const Icon(Icons.arrow_forward_ios),
+                  onLongPress: () async {
+                    setState(() {
+                      ticketScale += 0.2;
+                    });
+                    await Settings.setTicketScale(ticketScale);
+                  },
+                  child:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.bodyText1!.color,),
                 ),
               ],
             ),
@@ -285,9 +298,7 @@ class _SettingsPageState extends State<SettingsPage> {
               textAlign: TextAlign.center,
               controller: digitForRefController,
               keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               onChanged: (value) async {
                 if (value.isEmpty) return;
                 int parsed = int.parse(value);
@@ -317,8 +328,13 @@ class TicketPainter extends CustomPainter {
       y,
       Tickets.defaultTicketSize * scale,
       scale,
-      TicketData("Star Wars", 1, Settings.cinemaLong, Settings.cinemaShort,
-          DateTime.now(),),
+      TicketData(
+        "Star Wars",
+        1,
+        Settings.cinemaLong,
+        Settings.cinemaShort,
+        DateTime.now(),
+      ),
       "John Smith",
     );
   }

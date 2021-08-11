@@ -26,12 +26,10 @@ class _ViewerPageState extends State<ViewerPage> {
   @override
   void initState() {
     super.initState();
-    if (data != null) {
       Future.delayed(
         const Duration(seconds: 1),
         () async => await generateTickets(),
       );
-    }
   }
 
   List<ByteData>? data;
