@@ -20,8 +20,7 @@ class _SettingsPageState extends State<SettingsPage> {
   static const headerStyle = TextStyle(
     fontSize: 30,
   );
-
-  double ticketScale = Settings.ticketScale;
+  
   final shortNameController = TextEditingController(text: Settings.cinemaShort);
   final longNameController = TextEditingController(text: Settings.cinemaLong);
   final digitForRefController =
@@ -162,7 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   1,
                                 ))
                             .width *
-                        ticketScale),
+                        Settings.ticketScale),
                   ),
                 ),
               ),
@@ -173,38 +172,38 @@ class _SettingsPageState extends State<SettingsPage> {
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      ticketScale -= 0.02;
+                      Settings.ticketScale -= 0.02;
                     });
-                    await Settings.setTicketScale(ticketScale);
+                    await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
-                      ticketScale -= 0.2;
+                      Settings.ticketScale -= 0.2;
                     });
-                    await Settings.setTicketScale(ticketScale);
+                    await Settings.setTicketScale(Settings.ticketScale);
                   },
                   child: Icon(Icons.arrow_back_ios,  color: Theme.of(context).textTheme.bodyText1!.color,),
                 ),
-                Text("Scale: $ticketScale"),
+                Text("Scale: ${Settings.ticketScale}"),
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      ticketScale += 0.02;
+                      Settings.ticketScale += 0.02;
                     });
-                    await Settings.setTicketScale(ticketScale);
+                    await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
-                      ticketScale += 0.2;
+                      Settings.ticketScale += 0.2;
                     });
-                    await Settings.setTicketScale(ticketScale);
+                    await Settings.setTicketScale(Settings.ticketScale);
                   },
                   child:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.bodyText1!.color,),
                 ),
               ],
             ),
             SizedBox(
-              height: 50 * ticketScale,
+              height: 50 * Settings.ticketScale,
             ),
             const Text(
               "Ticket background colors",

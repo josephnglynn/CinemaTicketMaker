@@ -45,10 +45,10 @@ class Settings {
     await setString(_cinemaLongLocation, value);
   }
 
-
-
-  static Future setTicketScale(double s) async =>
-      await _prefs.setDouble(_ticketScaleLocation, s);
+  static Future setTicketScale(double s) async {
+    Settings.ticketScale = s;
+    await _prefs.setDouble(_ticketScaleLocation, s);
+  }
 
   static Future setIncludeNamesLocation(bool value) async {
     includeNames = value;
@@ -78,7 +78,7 @@ class Settings {
     cinemaShort = getString(_cinemaShortLocation) ?? "ODEON";
     shareInsteadOfPrint = _prefs.getBool(_shareIOPL) ?? false;
     includeNames = _prefs.getBool(_includeNamesLocation) ?? false;
-    ticketScale =  _prefs.getDouble(_ticketScaleLocation) ?? 2;
+    ticketScale = _prefs.getDouble(_ticketScaleLocation) ?? 2;
     sameRefForEachTicket = _prefs.getBool(_sameRefForEachTicket) ?? false;
     digitsForReferenceNumber = _prefs.getInt(_digitsForReferenceNumber) ?? 10;
   }

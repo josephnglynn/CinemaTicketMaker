@@ -15,8 +15,6 @@ import 'package:intl/intl.dart' as utils;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-
-
 class Tickets {
   static const defaultTicketSize = TicketSize(350, 150);
 
@@ -112,13 +110,15 @@ class Tickets {
     textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
-        canvas,
-        Offset(
-            225 * scale, ticketSize.height - textPainter.height - 10 * scale));
+      canvas,
+      Offset(225 * scale, -textPainter.height / 2 + 127.5 * scale),
+    );
 
     //SERIAL NUMBER
-    style =
-        style.copyWith(fontSize: 15 * scale, color: TicketColors.primaryText);
+    style = style.copyWith(
+      fontSize: 15 * scale,
+      color: TicketColors.primaryText,
+    );
     textPainter.text = TextSpan(children: [
       TextSpan(
         text: "REF:  ",
