@@ -9,6 +9,8 @@ class Settings {
   static late bool shareInsteadOfPrint;
   static late bool includeNames;
   static late double ticketScale;
+  static late bool sameRefForEachTicket;
+  static late int digitsForReferenceNumber;
 
   static String? getString(String key) => _prefs.getString(key);
 
@@ -58,6 +60,16 @@ class Settings {
     await _prefs.setBool(_shareIOPL, value);
   }
 
+  static Future setSameRefForEachTicket(bool value) async {
+    sameRefForEachTicket = value;
+    await _prefs.setBool(_sameRefForEachTicket, value);
+  }
+
+  static Future setDigitsForReferenceNumber(int value) async {
+    digitsForReferenceNumber = value;
+    await _prefs.setInt(_digitsForReferenceNumber, value);
+  }
+
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
     (await getCustomPageSizes() ?? [])
@@ -67,6 +79,8 @@ class Settings {
     shareInsteadOfPrint = _prefs.getBool(_shareIOPL) ?? false;
     includeNames = _prefs.getBool(_includeNamesLocation) ?? false;
     ticketScale =  _prefs.getDouble(_ticketScaleLocation) ?? 2;
+    sameRefForEachTicket = _prefs.getBool(_sameRefForEachTicket) ?? false;
+    digitsForReferenceNumber = _prefs.getInt(_digitsForReferenceNumber) ?? 10;
   }
 
   static const _customPageSizeLocation = "custom_page_size";
@@ -75,4 +89,6 @@ class Settings {
   static const _cinemaLongLocation = "cinema_long_location";
   static const _shareIOPL = "sInOP";
   static const _includeNamesLocation = "include_name_location";
+  static const _sameRefForEachTicket = "sameRefForEachTicket";
+  static const _digitsForReferenceNumber = "digitsForReferenceNumber";
 }

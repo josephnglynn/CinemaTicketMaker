@@ -1,9 +1,12 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:cinema_ticket_maker/api/settings.dart';
+import 'package:cinema_ticket_maker/types/customtextpainter.dart';
 import 'package:cinema_ticket_maker/types/pageresolution.dart';
 import 'package:cinema_ticket_maker/types/pagesize.dart';
+import 'package:cinema_ticket_maker/types/refnumber.dart';
 import 'package:cinema_ticket_maker/types/ticketcolors.dart';
+import 'package:cinema_ticket_maker/types/ticketdata.dart';
 import 'package:cinema_ticket_maker/types/ticketsize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,66 +15,7 @@ import 'package:intl/intl.dart' as utils;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-class CustomTextPainter extends TextPainter {
-  CustomTextPainter({
-    InlineSpan? text,
-    TextAlign textAlign = TextAlign.start,
-    TextDirection? textDirection,
-    double textScaleFactor = 1.0,
-    int? maxLines,
-    String? ellipsis,
-    Locale? locale,
-    StrutStyle? strutStyle,
-    TextWidthBasis textWidthBasis = TextWidthBasis.parent,
-    TextHeightBehavior? textHeightBehavior,
-  }) : super(
-          text: text,
-          textAlign: textAlign,
-          textDirection: textDirection,
-          textScaleFactor: textScaleFactor,
-          maxLines: maxLines,
-          ellipsis: ellipsis,
-          locale: locale,
-          strutStyle: strutStyle,
-          textHeightBehavior: textHeightBehavior,
-          textWidthBasis: textWidthBasis,
-        );
 
-  void fitCertainWidth(double widthOfConstraint) {
-    double decrease = 0.05;
-    layout();
-    if (width < widthOfConstraint) return;
-    final content = text!.toPlainText();
-    var style = text!.style ?? const TextStyle();
-    double fontSize = style.fontSize ?? 30;
-    while (width > widthOfConstraint) {
-      fontSize -= decrease;
-      style = style.copyWith(fontSize: fontSize);
-
-      text = TextSpan(
-        text: content,
-        style: style,
-      );
-
-      layout();
-
-      if (fontSize < 0.1) {
-        return;
-      }
-    }
-  }
-}
-
-class TicketData {
-  final String movieName;
-  final String cinemaName;
-  final String cinemaNameShort;
-  final DateTime date;
-  int participants;
-
-  TicketData(this.movieName, this.participants, this.cinemaName,
-      this.cinemaNameShort, this.date);
-}
 
 class Tickets {
   static const defaultTicketSize = TicketSize(350, 150);
@@ -96,8 +40,11 @@ class Tickets {
     TicketSize ticketSize,
     double scale,
     TicketData ticketData,
-  String? name
-  ) {
+    String? name, {
+    String? refNumber,
+  }) {
+    refNumber ??=
+        _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
     canvas.translate(moveXBy, moveYBy);
 
     //BACKGROUND
@@ -154,13 +101,14 @@ class Tickets {
 
     //COMMENCING AT
     style = style.copyWith(fontSize: 12.17 * scale);
-    textPainter.text = TextSpan(text: "On ${utils.DateFormat().format(ticketData.date)}", style: style);
+    textPainter.text = TextSpan(
+        text: "On ${utils.DateFormat().format(ticketData.date)}", style: style);
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 120) * scale);
 
     //DRAW SHORT NAME
-    style =
-        style.copyWith(fontSize: 24.55 * scale, color: TicketColors.secondaryText);
+    style = style.copyWith(
+        fontSize: 24.55 * scale, color: TicketColors.secondaryText);
     textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
@@ -169,14 +117,15 @@ class Tickets {
             225 * scale, ticketSize.height - textPainter.height - 10 * scale));
 
     //SERIAL NUMBER
-    style = style.copyWith(fontSize: 15 * scale, color: TicketColors.primaryText);
+    style =
+        style.copyWith(fontSize: 15 * scale, color: TicketColors.primaryText);
     textPainter.text = TextSpan(children: [
       TextSpan(
         text: "REF:  ",
         style: style,
       ),
       TextSpan(
-        text: _generateRandomListOfNumbers(10),
+        text: refNumber,
         style: style.copyWith(color: TicketColors.secondaryText),
       ),
     ], style: style);
@@ -194,7 +143,7 @@ class Tickets {
             style: style,
           ),
           TextSpan(
-            text: _generateRandomListOfNumbers(10),
+            text: refNumber,
             style: style.copyWith(color: TicketColors.secondaryText),
           ),
         ],
@@ -215,24 +164,24 @@ class Tickets {
     canvas.translate(-textPainter.height, 0);
 
     if (Settings.includeNames && name != null) {
-
       style = style.copyWith(fontSize: 12.95 * scale);
-      textPainter.text =
-          TextSpan(text: "Name", style: style);
+      textPainter.text = TextSpan(text: "Name", style: style);
       textPainter.fitCertainWidth(background.width / 10);
       textPainter.paint(canvas, const Offset(225, 49) * scale);
 
       style = style.copyWith(fontSize: 17.05 * scale);
-      textPainter.text =
-          TextSpan(text: name, style: style);
+      textPainter.text = TextSpan(text: name, style: style);
       textPainter.fitCertainWidth(background.width / 4);
-      textPainter.paint(canvas, const Offset(225,68) * scale);
+      textPainter.paint(canvas, const Offset(225, 68) * scale);
     }
   }
 
-  static Future<List<ByteData>> generate(
-      TicketData ticketData, String paperSize, double scale, List<String>? name) async {
+  static List<RefNumber>? refNumbers;
+
+  static Future<List<ByteData>> generate(TicketData ticketData,
+      String paperSize, double scale, List<String>? name) async {
     List<ByteData> result = [];
+    refNumbers = []; //reset any previous ones
 
     //Find Paper Size
     final pageResolution = pageSizes[paperSize] ??
@@ -243,11 +192,12 @@ class Tickets {
 
     final tSize = Tickets.defaultTicketSize * scale;
 
-
     while (ticketData.participants > 0) {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       double x = 0, y = 0, pX = 0, pY = 0;
+
+      String refNumber = _generateRandomListOfNumbers(10);
 
       while (ticketData.participants > 0) {
         Tickets.drawTicketComponent(
@@ -258,6 +208,13 @@ class Tickets {
           scale,
           ticketData,
           name != null ? name[ticketData.participants - 1] : null,
+          refNumber: refNumber,
+        );
+        refNumbers!.add(
+          RefNumber(
+            name != null ? name[ticketData.participants - 1] : "",
+            refNumber,
+          ),
         );
 
         ticketData.participants -= 1;
@@ -272,6 +229,11 @@ class Tickets {
           if (y + tSize.height > pageResolution.height) {
             break;
           }
+        }
+
+        if (!Settings.sameRefForEachTicket) {
+          refNumber =
+              _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
         }
       }
 
@@ -297,7 +259,7 @@ class Tickets {
           build: (pw.Context context) {
             return pw.Center(child: pw.Image(image));
           },
-          pageTheme:  const pw.PageTheme(
+          pageTheme: const pw.PageTheme(
             orientation: pw.PageOrientation.landscape,
             margin: pw.EdgeInsets.zero,
           ),

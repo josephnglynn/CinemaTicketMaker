@@ -1,5 +1,8 @@
 import 'package:cinema_ticket_maker/api/tickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
+import 'package:cinema_ticket_maker/types/ticketdata.dart';
+import 'package:cinema_ticket_maker/ui/homepage.dart';
+import 'package:cinema_ticket_maker/ui/referencenumberviewer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +26,12 @@ class _ViewerPageState extends State<ViewerPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(
-        const Duration(seconds: 1), () async => await generateTickets());
+    if (data != null) {
+      Future.delayed(
+        const Duration(seconds: 1),
+        () async => await generateTickets(),
+      );
+    }
   }
 
   List<ByteData>? data;
@@ -80,8 +87,56 @@ class _ViewerPageState extends State<ViewerPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
-            onPressed: () async =>
-                data != null ? await Tickets.printTickets(data!) : () {},
+            onPressed: () async {
+              if (data == null) return;
+              await Tickets.printTickets(data!);
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Printing now"),
+                  content: const Text(
+                    "Would you like to either: \nView reference number ( and optionally print them ), print again or restart?",
+                  ),
+                  actionsAlignment: MainAxisAlignment.spaceBetween,
+                  actionsPadding: const EdgeInsets.all(10),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ReferenceNumberViewer(),
+                          ),
+                        );
+                      },
+                      child: const Text("View reference Number"),
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.green, primary: Colors.white),
+                    ),
+                    TextButton(
+                      onPressed: () async => await Tickets.printTickets(data!),
+                      child: const Text("Print again"),
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          primary: Colors.white),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Tickets.refNumbers = null;
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
+                            (route) => false);
+                      },
+                      child: const Text("Restart"),
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.red, primary: Colors.white),
+                    ),
+                  ],
+                ),
+              );
+            },
             child: const Text("Print"),
           )
         ],

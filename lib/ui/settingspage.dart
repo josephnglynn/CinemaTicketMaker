@@ -3,8 +3,10 @@ import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/types/pageresolution.dart';
 import 'package:cinema_ticket_maker/types/pagesize.dart';
 import 'package:cinema_ticket_maker/types/ticketcolors.dart';
+import 'package:cinema_ticket_maker/types/ticketdata.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -22,6 +24,7 @@ class _SettingsPageState extends State<SettingsPage> {
   double ticketScale = Settings.ticketScale;
   final shortNameController = TextEditingController(text: Settings.cinemaShort);
   final longNameController = TextEditingController(text: Settings.cinemaLong);
+  final digitForRefController = TextEditingController(text: Settings.digitsForReferenceNumber.toString());
 
   void getColor(Color value, Function(Color) func) {
     showDialog(
@@ -251,7 +254,48 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ],
-            )
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Same reference number for each ticket",
+                  style: headerStyle,
+                ),
+                Switch(
+                  value: Settings.sameRefForEachTicket,
+                  onChanged: (value) async {
+                    await Settings.setSameRefForEachTicket(value);
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            const Text(
+              "Number of digits for reference number",
+              style: headerStyle,
+            ),
+            TextField(
+              textAlign: TextAlign.center,
+              controller: digitForRefController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              onChanged: (value) async {
+                if (value.isEmpty) return;
+                int parsed = int.parse(value);
+                if (parsed < 1) return;
+                await Settings.setDigitsForReferenceNumber(parsed);
+                setState(() {});
+              },
+            ),
           ],
         ),
       ),
@@ -275,7 +319,7 @@ class TicketPainter extends CustomPainter {
       scale,
       TicketData("Star Wars", 1, Settings.cinemaLong, Settings.cinemaShort,
           DateTime.now(),),
-      "John Smith"
+      "John Smith",
     );
   }
 
