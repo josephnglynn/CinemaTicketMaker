@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cinema_ticket_maker/api/tickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/types/pageresolution.dart';
