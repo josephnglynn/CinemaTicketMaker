@@ -11,6 +11,7 @@ class Settings {
   static late double ticketScale;
   static late bool sameRefForEachTicket;
   static late int digitsForReferenceNumber;
+  static late bool newUser;
 
   static String? getString(String key) => _prefs.getString(key);
 
@@ -70,6 +71,11 @@ class Settings {
     await _prefs.setInt(_digitsForReferenceNumber, value);
   }
 
+  static Future setIfNewUser(bool value) async {
+    newUser = value;
+    await _prefs.setBool(_newUser, value);
+  }
+
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
     (await getCustomPageSizes() ?? [])
@@ -81,6 +87,7 @@ class Settings {
     ticketScale = _prefs.getDouble(_ticketScaleLocation) ?? 2;
     sameRefForEachTicket = _prefs.getBool(_sameRefForEachTicket) ?? false;
     digitsForReferenceNumber = _prefs.getInt(_digitsForReferenceNumber) ?? 10;
+    newUser = _prefs.getBool(_newUser) ?? true;
   }
 
   static const _customPageSizeLocation = "custom_page_size";
@@ -91,4 +98,5 @@ class Settings {
   static const _includeNamesLocation = "include_name_location";
   static const _sameRefForEachTicket = "sameRefForEachTicket";
   static const _digitsForReferenceNumber = "digitsForReferenceNumber";
+  static const _newUser = "new-user";
 }
