@@ -9,8 +9,10 @@ class ViewerPage extends StatefulWidget {
   final String movieName;
   final int participants;
   final List<String>? participantNames;
+  final DateTime dateTime;
 
-  const ViewerPage(this.movieName, this.participants,  {Key? key, this.participantNames})
+  const ViewerPage(this.movieName, this.participants, this.dateTime,
+      {Key? key, this.participantNames})
       : super(key: key);
 
   @override
@@ -21,7 +23,8 @@ class _ViewerPageState extends State<ViewerPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () async => await generateTickets());
+    Future.delayed(
+        const Duration(seconds: 1), () async => await generateTickets());
   }
 
   List<ByteData>? data;
@@ -33,7 +36,7 @@ class _ViewerPageState extends State<ViewerPage> {
         widget.participants,
         Settings.cinemaLong,
         Settings.cinemaShort,
-        DateTime.now(),
+        widget.dateTime,
       ),
       "A4",
       Settings.ticketScale,
@@ -77,7 +80,8 @@ class _ViewerPageState extends State<ViewerPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
-            onPressed: () async => data != null ? await Tickets.printTickets(data!) : (){},
+            onPressed: () async =>
+                data != null ? await Tickets.printTickets(data!) : () {},
             child: const Text("Print"),
           )
         ],

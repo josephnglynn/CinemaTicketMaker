@@ -2,7 +2,7 @@ import 'package:cinema_ticket_maker/ui/viewerpage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class ParticipantCountPage extends StatefulWidget {
   final String movieName;
@@ -22,10 +22,12 @@ class _ParticipantCountPageState extends State<ParticipantCountPage> {
     setState(() {
       participants = int.parse(value);
     });
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) =>
-            ViewerPage(widget.movieName, participants),
+    DatePicker.showDateTimePicker(
+      context,
+      onConfirm: (value) => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ViewerPage(widget.movieName, participants, value),
+        ),
       ),
     );
   }
@@ -55,7 +57,7 @@ class _ParticipantCountPageState extends State<ParticipantCountPage> {
                 ),
                 const Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text (
+                  child: Text(
                     "Only numbers!",
                     textAlign: TextAlign.center,
                   ),
@@ -69,9 +71,7 @@ class _ParticipantCountPageState extends State<ParticipantCountPage> {
                       textAlign: TextAlign.center,
                       onSubmitted: onSubmit,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                   ),
                 ),

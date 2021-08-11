@@ -8,6 +8,7 @@ import 'package:cinema_ticket_maker/types/ticketsize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart' as utils;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
@@ -153,7 +154,7 @@ class Tickets {
 
     //COMMENCING AT
     style = style.copyWith(fontSize: 12.17 * scale);
-    textPainter.text = TextSpan(text: "AT ${ticketData.date}", style: style);
+    textPainter.text = TextSpan(text: "On ${utils.DateFormat().format(ticketData.date)}", style: style);
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 120) * scale);
 

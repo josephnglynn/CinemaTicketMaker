@@ -2,6 +2,7 @@ import 'package:cinema_ticket_maker/ui/viewerpage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ParticipantNamePage extends StatefulWidget {
@@ -16,11 +17,23 @@ class ParticipantNamePage extends StatefulWidget {
 class _ParticipantNamePageState extends State<ParticipantNamePage> {
   List<String> participants = [];
   final controller = TextEditingController();
+  final focusNode = FocusNode();
 
   void onSubmit(String value) {
+    if (value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Can't be empty"),
+          backgroundColor: Colors.red,
+          action: SnackBarAction(label: "Ok", onPressed: () {}),
+        ),
+      );
+      return;
+    }
     setState(() {
       participants.add(value);
       controller.clear();
+      focusNode.requestFocus();
     });
   }
 
@@ -30,6 +43,9 @@ class _ParticipantNamePageState extends State<ParticipantNamePage> {
     double calculations = width > 400 ? width / 2 : width - 40;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Input participants names"),
+      ),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -52,6 +68,7 @@ class _ParticipantNamePageState extends State<ParticipantNamePage> {
                       controller: controller,
                       textAlign: TextAlign.center,
                       onSubmitted: onSubmit,
+                      focusNode: focusNode,
                     ),
                   ),
                 ),
@@ -98,14 +115,19 @@ class _ParticipantNamePageState extends State<ParticipantNamePage> {
           children: [
             TextButton(
               child: const Text("Continue"),
-              onPressed: () {
-                Navigator.of(context).push(
+              onPressed: () => DatePicker.showDateTimePicker(
+                context,
+                onConfirm: (value) => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        ViewerPage(widget.movieName, participants.length, participantNames: participants,),
+                    builder: (context) => ViewerPage(
+                      widget.movieName,
+                      participants.length,
+                      value,
+                      participantNames: participants,
+                    ),
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ],
         ),
