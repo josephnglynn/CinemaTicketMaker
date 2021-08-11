@@ -133,31 +133,33 @@ class Tickets {
     textPainter.paint(canvas, const Offset(10, 10) * scale);
 
     //VALID
+    style = style.copyWith(fontSize: 12.52 * scale);
     textPainter.text = TextSpan(text: "VALID", style: style);
     textPainter.fitCertainWidth(background.width / 10);
     textPainter.paint(canvas, const Offset(10, 50) * scale);
 
     //VALID WHERE
-    style = style.copyWith(fontSize: 20 * scale);
+    style = style.copyWith(fontSize: 18.4 * scale);
     textPainter.text =
         TextSpan(text: "AT ${ticketData.cinemaName}", style: style);
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 67) * scale);
 
     //COMMENCING
+    style = style.copyWith(fontSize: 11.5 * scale);
     textPainter.text = TextSpan(text: "COMMENCING", style: style);
     textPainter.fitCertainWidth(background.width / 4.5);
     textPainter.paint(canvas, const Offset(10, 100) * scale);
 
     //COMMENCING AT
-    style = style.copyWith(fontSize: 20 * scale);
+    style = style.copyWith(fontSize: 12.17 * scale);
     textPainter.text = TextSpan(text: "AT ${ticketData.date}", style: style);
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 120) * scale);
 
     //DRAW SHORT NAME
     style =
-        style.copyWith(fontSize: 30 * scale, color: TicketColors.secondaryText);
+        style.copyWith(fontSize: 24.55 * scale, color: TicketColors.secondaryText);
     textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
@@ -166,8 +168,7 @@ class Tickets {
             225 * scale, ticketSize.height - textPainter.height - 10 * scale));
 
     //SERIAL NUMBER
-    fontSize = 15 * scale;
-    style = style.copyWith(fontSize: fontSize, color: TicketColors.primaryText);
+    style = style.copyWith(fontSize: 15 * scale, color: TicketColors.primaryText);
     textPainter.text = TextSpan(children: [
       TextSpan(
         text: "REF:  ",
@@ -214,12 +215,13 @@ class Tickets {
 
     if (Settings.includeNames && name != null) {
 
+      style = style.copyWith(fontSize: 12.95 * scale);
       textPainter.text =
           TextSpan(text: "Name", style: style);
       textPainter.fitCertainWidth(background.width / 10);
       textPainter.paint(canvas, const Offset(225, 49) * scale);
 
-      style = style.copyWith(fontSize: 30 * scale);
+      style = style.copyWith(fontSize: 17.05 * scale);
       textPainter.text =
           TextSpan(text: name, style: style);
       textPainter.fitCertainWidth(background.width / 4);
