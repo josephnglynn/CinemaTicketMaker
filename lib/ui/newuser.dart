@@ -12,8 +12,11 @@ class NewUser extends StatelessWidget {
     return Scaffold(
       body: const SafeArea(
         child: Center(
-          child: Text(
-            "Hi, before you get started, we suggest you go to the settings page to setup some key settings, such as ticket sizes and colors, your cinema name and more!",
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              "Hi, before you get started, we suggest you go to the settings page to setup some key settings, such as ticket sizes and colors, your cinema name and more!",
+            ),
           ),
         ),
       ),
