@@ -256,7 +256,9 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 const Text(
                   "Add people's name to ticket",
-                  style: headerStyle,
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
                 Switch(
                   value: Settings.includeNames,
@@ -275,7 +277,9 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 const Text(
                   "Same reference number for each ticket",
-                  style: headerStyle,
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
                 Switch(
                   value: Settings.sameRefForEachTicket,
