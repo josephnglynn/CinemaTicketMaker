@@ -282,7 +282,7 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Same reference number for each ticket",
+                  "Same ref number for each ticket",
                   style: TextStyle(
                     fontSize: 20,
                   ),

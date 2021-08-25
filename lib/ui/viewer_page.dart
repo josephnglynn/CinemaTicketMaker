@@ -78,6 +78,7 @@ Widget shareDialog(BuildContext context, List<ByteData> data) {
           ),
           Image(
             image: MemoryImage(data[index].buffer.asUint8List()),
+            width: MediaQuery.of(context).size.width / 2.5,
           ),
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios_sharp),
