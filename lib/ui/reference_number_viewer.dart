@@ -1,5 +1,6 @@
 import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/api/tickets.dart';
+import 'package:cinema_ticket_maker/types/ref_number.dart';
 import 'package:cinema_ticket_maker/ui/homepage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,11 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 class ReferenceNumberViewer extends StatefulWidget {
-  const ReferenceNumberViewer({Key? key}) : super(key: key);
+  late final List<RefNumber>? refNumber;
+
+  ReferenceNumberViewer({Key? key, List<RefNumber>? rN}) : super(key: key) {
+    rN != null ? refNumber = rN : Tickets.currentRefNumbers;
+  }
 
   @override
   _ReferenceNumberViewerState createState() => _ReferenceNumberViewerState();
@@ -16,6 +21,7 @@ class ReferenceNumberViewer extends StatefulWidget {
 class _ReferenceNumberViewerState extends State<ReferenceNumberViewer> {
   @override
   Widget build(BuildContext context) {
+    bool usePassedDownValue = widget.refNumber != null;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Reference Number Viewer"),
@@ -23,12 +29,14 @@ class _ReferenceNumberViewerState extends State<ReferenceNumberViewer> {
       body: SafeArea(
         child: ListView.builder(
           padding: const EdgeInsets.all(30),
-          itemCount: Tickets.refNumbers!.length,
+          itemCount: widget.refNumber!.length,
           itemBuilder: (context, index) => Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(Tickets.refNumbers![index].name),
-              Text(Tickets.refNumbers![index].number),
+              Text(widget.refNumber![index].name
+                 ),
+              Text( widget.refNumber![index].number
+                 ),
             ],
           ),
         ),
@@ -49,25 +57,17 @@ class _ReferenceNumberViewerState extends State<ReferenceNumberViewer> {
                 doc.addPage(
                   pw.Page(
                     build: (context) => pw.ListView.builder(
-                      itemCount: Tickets.refNumbers!.length,
+                      itemCount: widget.refNumber!.length,
                       itemBuilder: (context, index) => pw.Row(
                         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                         children: [
-                          pw.Text(Tickets.refNumbers![index].name),
-                          pw.Text(Tickets.refNumbers![index].number),
+                          pw.Text(widget.refNumber![index].name),
+                          pw.Text(widget.refNumber![index].number),
                         ],
                       ),
                     ),
                   ),
                 );
-
-                if (Settings.shareInsteadOfPrint) {
-                  await Printing.sharePdf(
-                    bytes: await doc.save(),
-                    filename: "Cinema tickets",
-                  );
-                  return;
-                }
 
                 await Printing.layoutPdf(
                   onLayout: (format) async => doc.save(),
@@ -81,7 +81,7 @@ class _ReferenceNumberViewerState extends State<ReferenceNumberViewer> {
                 backgroundColor: Colors.red,
               ),
               onPressed: () {
-                Tickets.refNumbers = null;
+                Tickets.currentRefNumbers = null;
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                       builder: (context) => const HomePage(),

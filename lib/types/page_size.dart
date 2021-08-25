@@ -1,4 +1,4 @@
-import 'package:cinema_ticket_maker/types/pageresolution.dart';
+import 'package:cinema_ticket_maker/types/page_resolution.dart';
 
 class CustomPageSize {
   final String name;

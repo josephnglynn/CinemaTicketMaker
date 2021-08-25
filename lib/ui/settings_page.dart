@@ -1,9 +1,9 @@
 import 'package:cinema_ticket_maker/api/tickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
-import 'package:cinema_ticket_maker/types/pageresolution.dart';
-import 'package:cinema_ticket_maker/types/pagesize.dart';
-import 'package:cinema_ticket_maker/types/ticketcolors.dart';
-import 'package:cinema_ticket_maker/types/ticketdata.dart';
+import 'package:cinema_ticket_maker/types/page_resolution.dart';
+import 'package:cinema_ticket_maker/types/page_size.dart';
+import 'package:cinema_ticket_maker/types/ticket_colors.dart';
+import 'package:cinema_ticket_maker/types/ticket_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +20,7 @@ class _SettingsPageState extends State<SettingsPage> {
   static const headerStyle = TextStyle(
     fontSize: 30,
   );
-  
+
   final shortNameController = TextEditingController(text: Settings.cinemaShort);
   final longNameController = TextEditingController(text: Settings.cinemaLong);
   final digitForRefController =
@@ -182,7 +182,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
-                  child: Icon(Icons.arrow_back_ios,  color: Theme.of(context).textTheme.bodyText1!.color,),
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Theme.of(context).textTheme.bodyText1!.color,
+                  ),
                 ),
                 Text("Scale: ${Settings.ticketScale}"),
                 TextButton(
@@ -198,7 +201,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
-                  child:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.bodyText1!.color,),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Theme.of(context).textTheme.bodyText1!.color,
+                  ),
                 ),
               ],
             ),
@@ -293,6 +299,27 @@ class _SettingsPageState extends State<SettingsPage> {
             const SizedBox(
               height: 50,
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Share instead of print",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                Switch(
+                  value: Settings.shareInsteadOfPrint,
+                  onChanged: (value) async {
+                    await Settings.setShareInsteadOfPrint(value);
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 50,
+            ),
             const Text(
               "Number of digits for reference number",
               style: headerStyle,
@@ -310,6 +337,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() {});
               },
             ),
+            const SizedBox(
+              height: 50,
+            ),
+            const Text(
+              "Copyright (c) 2021 Joseph Glynn",
+              textAlign: TextAlign.center,
+            )
           ],
         ),
       ),

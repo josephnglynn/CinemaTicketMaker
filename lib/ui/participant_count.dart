@@ -1,4 +1,4 @@
-import 'package:cinema_ticket_maker/ui/viewerpage.dart';
+import 'package:cinema_ticket_maker/ui/viewer_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

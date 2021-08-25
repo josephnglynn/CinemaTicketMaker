@@ -1,4 +1,4 @@
-import 'package:cinema_ticket_maker/ui/viewerpage.dart';
+import 'package:cinema_ticket_maker/ui/viewer_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -114,19 +114,22 @@ class _ParticipantNamePageState extends State<ParticipantNamePage> {
           children: [
             TextButton(
               child: const Text("Continue"),
-              onPressed: () => DatePicker.showDateTimePicker(
-                context,
-                onConfirm: (value) => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ViewerPage(
-                      widget.movieName,
-                      participants.length,
-                      value,
-                      participantNames: participants,
+              onPressed: () {
+                if (controller.text.isNotEmpty) onSubmit(controller.text);
+                DatePicker.showDateTimePicker(
+                  context,
+                  onConfirm: (value) => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ViewerPage(
+                        widget.movieName,
+                        participants.length,
+                        value,
+                        participantNames: participants,
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),

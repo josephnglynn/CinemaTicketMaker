@@ -1,7 +1,8 @@
 import 'package:cinema_ticket_maker/api/settings.dart';
-import 'package:cinema_ticket_maker/ui/participantcount.dart';
-import 'package:cinema_ticket_maker/ui/participantname.dart';
-import 'package:cinema_ticket_maker/ui/settingspage.dart';
+import 'package:cinema_ticket_maker/ui/participant_count.dart';
+import 'package:cinema_ticket_maker/ui/participant_name.dart';
+import 'package:cinema_ticket_maker/ui/reference_container_viewer.dart';
+import 'package:cinema_ticket_maker/ui/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -87,19 +88,42 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const SettingsPage(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ReferenceContainerViewer(),
+                  ),
+                );
+              },
+             child: Icon(
+                Icons.leaderboard,
+                color: Theme.of(context).textTheme.bodyText1!.color,
+              ),
+
             ),
-          );
-        },
-        child: Icon(
-          Icons.settings,
-          color: Theme.of(context).textTheme.bodyText1!.color,
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  ),
+                );
+              },
+             child: Icon(
+                Icons.settings,
+                color: Theme.of(context).textTheme.bodyText1!.color,
+              ),
+
+            ),
+          ],
         ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
     );
   }

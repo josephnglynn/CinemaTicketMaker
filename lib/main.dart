@@ -1,15 +1,16 @@
-import 'package:cinema_ticket_maker/types/ticketcolors.dart';
+import 'package:cinema_ticket_maker/types/ticket_colors.dart';
 import 'package:cinema_ticket_maker/ui/homepage.dart';
-import 'package:cinema_ticket_maker/ui/newuser.dart';
+import 'package:cinema_ticket_maker/ui/new_user.dart';
 import 'package:flutter/material.dart';
-
 import 'api/settings.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Settings.init();
   await TicketColors.init();
+
 
   runApp(
     MaterialApp(

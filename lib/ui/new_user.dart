@@ -1,6 +1,6 @@
 import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/ui/homepage.dart';
-import 'package:cinema_ticket_maker/ui/settingspage.dart';
+import 'package:cinema_ticket_maker/ui/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

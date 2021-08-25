@@ -1,19 +1,25 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:cinema_ticket_maker/api/settings.dart';
-import 'package:cinema_ticket_maker/types/customtextpainter.dart';
-import 'package:cinema_ticket_maker/types/pageresolution.dart';
-import 'package:cinema_ticket_maker/types/pagesize.dart';
-import 'package:cinema_ticket_maker/types/refnumber.dart';
-import 'package:cinema_ticket_maker/types/ticketcolors.dart';
-import 'package:cinema_ticket_maker/types/ticketdata.dart';
-import 'package:cinema_ticket_maker/types/ticketsize.dart';
+import 'package:cinema_ticket_maker/types/custom_text_painter.dart';
+import 'package:cinema_ticket_maker/types/page_resolution.dart';
+import 'package:cinema_ticket_maker/types/page_size.dart';
+import 'package:cinema_ticket_maker/types/ref_number.dart';
+import 'package:cinema_ticket_maker/types/ref_number_container.dart';
+import 'package:cinema_ticket_maker/types/ticket_colors.dart';
+import 'package:cinema_ticket_maker/types/ticket_data.dart';
+import 'package:cinema_ticket_maker/types/ticket_size.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as utils;
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Tickets {
   static const defaultTicketSize = TicketSize(350, 150);
@@ -176,12 +182,64 @@ class Tickets {
     }
   }
 
-  static List<RefNumber>? refNumbers;
+  static List<RefNumber>? currentRefNumbers;
 
-  static Future<List<ByteData>> generate(TicketData ticketData,
+  static Future<List<ByteData>> _generateTicketsToShare(
+      TicketData ticketData, double scale, List<String>? name) async {
+    List<ByteData> result = [];
+    currentRefNumbers = [];
+
+    final tSize = Tickets.defaultTicketSize * scale;
+
+    String refNumber =
+        _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
+
+    while (ticketData.participants > 0) {
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      Tickets.drawTicketComponent(
+        canvas,
+        0,
+        0,
+        tSize,
+        scale,
+        ticketData,
+        name != null ? name[ticketData.participants - 1] : null,
+        refNumber: refNumber,
+      );
+
+      currentRefNumbers!.add(
+        RefNumber(
+          name != null ? name[ticketData.participants - 1] : "",
+          refNumber,
+        ),
+      );
+
+      ticketData.participants -= 1;
+
+      if (!Settings.sameRefForEachTicket) {
+        refNumber =
+            _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
+      }
+
+      final picture = recorder.endRecording();
+
+      final image = await picture.toImage(
+        tSize.width.toInt(),
+        tSize.height.toInt(),
+      );
+
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (data != null) result.add(data);
+    }
+    return result;
+  }
+
+  static Future<List<ByteData>> _generateTicketsToPrint(TicketData ticketData,
       String paperSize, double scale, List<String>? name) async {
     List<ByteData> result = [];
-    refNumbers = []; //reset any previous ones
+    currentRefNumbers = []; //reset any previous ones
 
     //Find Paper Size
     final pageResolution = pageSizes[paperSize] ??
@@ -197,7 +255,8 @@ class Tickets {
       final canvas = Canvas(recorder);
       double x = 0, y = 0, pX = 0, pY = 0;
 
-      String refNumber = _generateRandomListOfNumbers(10);
+      String refNumber =
+          _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
 
       while (ticketData.participants > 0) {
         Tickets.drawTicketComponent(
@@ -211,7 +270,7 @@ class Tickets {
           refNumber: refNumber,
         );
 
-        refNumbers!.add(
+        currentRefNumbers!.add(
           RefNumber(
             name != null ? name[ticketData.participants - 1] : "",
             refNumber,
@@ -250,6 +309,54 @@ class Tickets {
     return result;
   }
 
+  static Future<List<ByteData>> generate(TicketData ticketData,
+      String paperSize, double scale, List<String>? name) async {
+    final result = Settings.shareInsteadOfPrint
+        ? await _generateTicketsToShare(ticketData, scale, name)
+        : await _generateTicketsToPrint(ticketData, paperSize, scale, name);
+
+    await Settings.setRefContainers(
+      RefContainer(
+        currentRefNumbers!,
+        "${ticketData.movieName} - ${utils.DateFormat().format(ticketData.date)}",
+      ),
+    );
+    return result;
+  }
+
+  static Future<bool> shareTickets(
+      ByteData data, BuildContext context, String ticketNumber) async {
+    if ((Platform.isAndroid || Platform.isIOS) &&
+        !await Permission.storage.request().isGranted) {
+      return false;
+    }
+
+    final tempDir = await getTemporaryDirectory();
+    final filePath = "${tempDir.path}/image.png";
+    File file = File(filePath);
+    if (await file.exists()) {
+      await file.delete();
+      await file.create();
+    } else {
+      await file.create();
+    }
+
+    await file.writeAsBytes(data.buffer.asInt8List());
+
+    try {
+      Share.shareFiles([
+        filePath,
+      ], text: ticketNumber, subject: "Sharing cinema ticket");
+    } catch (e) {
+      if (kDebugMode) print("Error: ${e.toString()}");
+      final newFilePath =
+          "${tempDir.path}/image${DateTime.now().toString()}.png";
+      await File(newFilePath).writeAsBytes(data.buffer.asInt8List());
+      print("Saving file instead to $newFilePath");
+    }
+    return true;
+  }
+
   static Future printTickets(List<ByteData> data) async {
     final doc = pw.Document();
 
@@ -268,15 +375,14 @@ class Tickets {
       );
     }
 
-    if (Settings.shareInsteadOfPrint) {
-      return await Printing.sharePdf(
-        bytes: await doc.save(),
-        filename: "Cinema tickets",
+    try {
+      await Printing.layoutPdf(
+        onLayout: (format) async => doc.save(),
       );
+    } catch (e) {
+      return false;
     }
 
-    await Printing.layoutPdf(
-      onLayout: (format) async => doc.save(),
-    );
+    return true;
   }
 }
