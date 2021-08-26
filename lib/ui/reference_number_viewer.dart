@@ -45,7 +45,7 @@ class _ReferenceNumberViewerState extends State<ReferenceNumberViewer> {
             ? const Center(
                 child: Padding(
                   child: Text(
-                    "We're good to go, there are no more tickets to check.",
+                    "You're good to go, there are no more tickets to check.",
                     textAlign: TextAlign.center,
                   ),
                   padding: EdgeInsets.all(20),
