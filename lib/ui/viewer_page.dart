@@ -7,8 +7,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
-Widget afterOutput(BuildContext context, List<ByteData> data) {
+Widget afterOutput(BuildContext context, List<ByteData> data, String movieName,
+    String dateTime) {
   final action = Settings.shareInsteadOfPrint ? "Share" : "Print";
   return AlertDialog(
     title: Text("${action}ing now"),
@@ -37,7 +39,8 @@ Widget afterOutput(BuildContext context, List<ByteData> data) {
                 Navigator.pop(context);
                 showDialog(
                   context: context,
-                  builder: (context) => shareDialog(context, data),
+                  builder: (context) =>
+                      shareDialog(context, data, movieName, dateTime),
                 );
               }
             : await Tickets.printTickets(data),
@@ -62,48 +65,48 @@ Widget afterOutput(BuildContext context, List<ByteData> data) {
   );
 }
 
-Widget shareDialog(BuildContext context, List<ByteData> data) {
+Widget shareDialog(BuildContext context, List<ByteData> data, String movieName,
+    String dateTime) {
   int index = 0;
   return StatefulBuilder(
-    builder: (context, setState) => AlertDialog(
-      title: Text("Sharing Tickets - Ticket ${index + 1}"),
-      content: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_sharp),
-            onPressed: () {
-              if (index != 0) setState(() => index--);
-            },
-          ),
-          Image(
-            image: MemoryImage(data[index].buffer.asUint8List()),
-            width: MediaQuery.of(context).size.width / 2.5,
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios_sharp),
-            onPressed: () {
-              if (index < data.length - 1) setState(() => index++);
-            },
-          ),
-        ],
-      ),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      actionsPadding: const EdgeInsets.all(10),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              child: const Text("Share"),
-              onPressed: () => Tickets.shareTickets(
-                  data[index], context, "Ticket ${index + 1}"),
+      builder: (context, setState) => AlertDialog(
+            title: Text("Sharing Tickets - Ticket ${index + 1}"),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_sharp),
+                  onPressed: () {
+                    if (index != 0) setState(() => index--);
+                  },
+                ),
+                Image(
+                  image: MemoryImage(data[index].buffer.asUint8List()),
+                  width: MediaQuery.of(context).size.width / 2.5,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios_sharp),
+                  onPressed: () {
+                    if (index < data.length - 1) setState(() => index++);
+                  },
+                ),
+              ],
             ),
-          ],
-        )
-      ],
-    ),
-  );
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            actionsPadding: const EdgeInsets.all(10),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    child: const Text("Share"),
+                    onPressed: () => Tickets.shareTickets(data[index], context,
+                        "Ticket ${index + 1}", index, movieName, dateTime),
+                  ),
+                ],
+              )
+            ],
+          ));
 }
 
 class ViewerPage extends StatefulWidget {
@@ -189,14 +192,22 @@ class _ViewerPageState extends State<ViewerPage> {
               if (Settings.shareInsteadOfPrint) {
                 showDialog(
                   context: context,
-                  builder: (context) => shareDialog(context, data!),
+                  builder: (context) => shareDialog(context, data!,
+                      widget.movieName, DateFormat().format(widget.dateTime)),
+                ).then(
+                  (value) => showDialog(
+                    context: context,
+                    builder: (context) => afterOutput(context, data!,
+                        widget.movieName, DateFormat().format(widget.dateTime)),
+                  ),
                 );
                 return;
               }
               await Tickets.printTickets(data!);
               showDialog(
                 context: context,
-                builder: (context) => afterOutput(context, data!),
+                builder: (context) => afterOutput(context, data!,
+                    widget.movieName, DateFormat().format(widget.dateTime)),
               );
             },
             child: Text(Settings.shareInsteadOfPrint ? "Share" : "Print"),

@@ -10,6 +10,8 @@ class Settings {
   static late bool sameRefForEachTicket;
   static late bool shareInsteadOfPrint;
   static late bool includeNames;
+  static late bool extraQrCode;
+  static late bool useQrCodes;
   static late bool newUser;
   static late bool share;
   static late double ticketScale;
@@ -60,6 +62,9 @@ class Settings {
   }
 
   static Future setShareInsteadOfPrint(bool value) async {
+    if (!value && Settings.extraQrCode) {
+      await Settings.setExtraQrCodes(false);
+    }
     shareInsteadOfPrint = value;
     await _prefs.setBool(_shareIOPL, value);
   }
@@ -98,6 +103,26 @@ class Settings {
         }),
       );
 
+  static Future setUseQrCode(bool value) async  {
+    if (!value && useQrCodes) {
+      await setExtraQrCodes(false);
+    }
+    useQrCodes = value;
+    await _prefs.setBool(_qrCodes, value);
+  }
+
+  static Future setExtraQrCodes(bool value) async {
+    if (value && !useQrCodes) {
+      await setUseQrCode(true);
+    }
+    if (value && !shareInsteadOfPrint) {
+      await setShareInsteadOfPrint(true);
+    }
+    extraQrCode = value;
+    await _prefs.setBool(_extraQr, value);
+  }
+
+
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
     (await getCustomPageSizes() ?? [])
@@ -110,6 +135,8 @@ class Settings {
     sameRefForEachTicket = _prefs.getBool(_sameRefForEachTicket) ?? false;
     digitsForReferenceNumber = _prefs.getInt(_digitsForReferenceNumber) ?? 10;
     newUser = _prefs.getBool(_newUser) ?? true;
+    useQrCodes = _prefs.getBool(_qrCodes) ?? false;
+    extraQrCode = _prefs.getBool(_extraQr) ?? false;
 
     final refNumberData = _prefs.getString(_refs);
     referenceContainers = refNumberData != null
@@ -129,4 +156,6 @@ class Settings {
   static const _digitsForReferenceNumber = "digitsForReferenceNumber";
   static const _newUser = "new-user";
   static const _refs = "refs";
+  static const _qrCodes = "qrCodes";
+  static const _extraQr = "extraQR";
 }

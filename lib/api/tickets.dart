@@ -13,6 +13,7 @@ import 'package:cinema_ticket_maker/types/ticket_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as utils;
 import 'package:path_provider/path_provider.dart';
@@ -20,6 +21,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:qr/qr.dart';
 
 class Tickets {
   static const defaultTicketSize = TicketSize(350, 150);
@@ -120,55 +122,6 @@ class Tickets {
       Offset(225 * scale, -textPainter.height / 2 + 127.5 * scale),
     );
 
-    //SERIAL NUMBER
-    style = style.copyWith(
-      fontSize: 15 * scale,
-      color: TicketColors.primaryText,
-    );
-    textPainter.text = TextSpan(children: [
-      TextSpan(
-        text: "REF:  ",
-        style: style,
-      ),
-      TextSpan(
-        text: refNumber,
-        style: style.copyWith(color: TicketColors.secondaryText),
-      ),
-    ], style: style);
-    // textPainter.fitCertainWidth(background.width / 4);
-    textPainter.layout();
-
-    while (textPainter.width > ticketSize.height - 20) {
-      style =
-          style.copyWith(fontSize: fontSize, color: TicketColors.primaryText);
-      fontSize -= 0.1;
-      textPainter.text = TextSpan(
-        children: [
-          TextSpan(
-            text: "REF:  ",
-            style: style,
-          ),
-          TextSpan(
-            text: refNumber,
-            style: style.copyWith(color: TicketColors.secondaryText),
-          ),
-        ],
-        style: style,
-      );
-      textPainter.layout();
-    }
-
-    canvas.translate(textPainter.height, 0);
-    canvas.rotate(_degreesToRadians(90));
-
-    textPainter.paint(
-        canvas,
-        Offset((ticketSize.height - textPainter.width) / 2,
-            -ticketSize.width + textPainter.height));
-
-    canvas.rotate(_degreesToRadians(-90));
-    canvas.translate(-textPainter.height, 0);
-
     if (Settings.includeNames && name != null) {
       style = style.copyWith(fontSize: 12.95 * scale);
       textPainter.text = TextSpan(text: "Name", style: style);
@@ -180,7 +133,89 @@ class Tickets {
       textPainter.fitCertainWidth(background.width / 4);
       textPainter.paint(canvas, const Offset(225, 68) * scale);
     }
+
+    if (Settings.useQrCodes) {
+
+      int i = 1;
+      QrCode qrCode;
+
+      while (true) {
+        qrCode = QrCode(i, QrErrorCorrectLevel.L);
+        qrCode.addData(name ?? "" + uniqueSplitter + refNumber);
+        try {
+          qrCode.make();
+          break;
+        } catch (e) {
+          i++;
+        }
+      }
+
+      for (double x = 0; x < qrCode.moduleCount; x++) {
+        for (double y = 0; y < qrCode.moduleCount; y++) {
+          if (qrCode.isDark(y.toInt(), x.toInt())) {
+            canvas.drawRect(
+                Rect.fromLTWH(
+                    x * scale * _qrCodeScale + 305 * scale,
+                    y * scale * _qrCodeScale + 10 * scale,
+                    scale * _qrCodeScale,
+                    scale * _qrCodeScale),
+                Paint()..color = TicketColors.primaryText);
+          }
+        }
+      }
+    } else {
+      //SERIAL NUMBER
+      style = style.copyWith(
+        fontSize: 15 * scale,
+        color: TicketColors.primaryText,
+      );
+      textPainter.text = TextSpan(children: [
+        TextSpan(
+          text: "REF:  ",
+          style: style,
+        ),
+        TextSpan(
+          text: refNumber,
+          style: style.copyWith(color: TicketColors.secondaryText),
+        ),
+      ], style: style);
+      // textPainter.fitCertainWidth(background.width / 4);
+      textPainter.layout();
+
+      while (textPainter.width > ticketSize.height - 20) {
+        style =
+            style.copyWith(fontSize: fontSize, color: TicketColors.primaryText);
+        fontSize -= 0.1;
+        textPainter.text = TextSpan(
+          children: [
+            TextSpan(
+              text: "REF:  ",
+              style: style,
+            ),
+            TextSpan(
+              text: refNumber,
+              style: style.copyWith(color: TicketColors.secondaryText),
+            ),
+          ],
+          style: style,
+        );
+        textPainter.layout();
+      }
+
+      canvas.translate(textPainter.height, 0);
+      canvas.rotate(_degreesToRadians(90));
+
+      textPainter.paint(
+          canvas,
+          Offset((ticketSize.height - textPainter.width) / 2,
+              -ticketSize.width + textPainter.height));
+
+      canvas.rotate(_degreesToRadians(-90));
+      canvas.translate(-textPainter.height, 0);
+    }
   }
+
+  static const _qrCodeScale = 1.75;
 
   static List<RefNumber>? currentRefNumbers;
 
@@ -324,35 +359,114 @@ class Tickets {
     return result;
   }
 
-  static Future<bool> shareTickets(
-      ByteData data, BuildContext context, String ticketNumber) async {
+  static const uniqueSplitter = "*#*";
+
+  static Future<ByteData> _generateExtraQrCode(
+      int index, String movieName, String time) async {
+    final size = SchedulerBinding.instance!.window.physicalSize;
+    final marginForQrCodeExtra =
+        (size.width > size.height ? size.height : size.width) / 10;
+
+    final textPainter = CustomTextPainter(
+      text: TextSpan(
+        text: "$movieName - $time",
+        style: const TextStyle(color: Colors.black, fontSize: 30),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.fitCertainWidth(size.width - 2 * marginForQrCodeExtra);
+
+
+    double whatByWhat = (size.width > size.height ? size.height : size.width) +
+        marginForQrCodeExtra * 2;
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    canvas.drawRect(Rect.fromLTWH(0, 0, whatByWhat, whatByWhat + textPainter.height),
+        Paint()..color = Colors.white);
+
+    int i = 1;
+    QrCode qrCode;
+
+    while (true) {
+      qrCode = QrCode(i, QrErrorCorrectLevel.L);
+      qrCode.addData(currentRefNumbers![index].name + uniqueSplitter + currentRefNumbers![index].number);
+      try {
+        qrCode.make();
+        break;
+      } catch (e) {
+        i++;
+      }
+    }
+
+
+
+
+    double scale =
+        (whatByWhat - (marginForQrCodeExtra * 2)) / qrCode.moduleCount;
+
+    for (double x = 0; x < qrCode.moduleCount; x++) {
+      for (double y = 0; y < qrCode.moduleCount; y++) {
+        if (qrCode.isDark(y.toInt(), x.toInt())) {
+          canvas.drawRect(
+              Rect.fromLTWH(
+                x * scale + marginForQrCodeExtra,
+                y * scale + marginForQrCodeExtra + textPainter.height,
+                scale,
+                scale,
+              ),
+              Paint()..color = Colors.black);
+        }
+      }
+    }
+
+    textPainter.paint(canvas,  Offset( whatByWhat / 2 - textPainter.width / 2, 20));
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(whatByWhat.toInt(), whatByWhat.toInt() + textPainter.height.toInt());
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+    return data!;
+  }
+
+  static Future<bool> shareTickets(ByteData data, BuildContext context,
+      String ticketNumber, int index, String movieName, String time) async {
     if ((Platform.isAndroid || Platform.isIOS) &&
         !await Permission.storage.request().isGranted) {
       return false;
     }
 
     final tempDir = await getTemporaryDirectory();
-    final filePath = "${tempDir.path}/image.png";
-    File file = File(filePath);
-    if (await file.exists()) {
-      await file.delete();
-      await file.create();
-    } else {
-      await file.create();
+    final filePaths = ["${tempDir.path}/image$ticketNumber.png"];
+
+    if (Settings.extraQrCode) {
+      filePaths.add("${tempDir.path}/extraQR$ticketNumber.png");
     }
 
-    await file.writeAsBytes(data.buffer.asInt8List());
+    final List<File> files = [];
+    for (int i = 0; i < filePaths.length; ++i) {
+      files.add(File(filePaths[i]));
+      if (await files[i].exists()) {
+        await files[i].delete();
+        await files[i].create();
+      } else {
+        await files[i].create();
+      }
+    }
+
+    await files[0].writeAsBytes(data.buffer.asInt8List());
+    if (Settings.extraQrCode) {
+      await files[1].writeAsBytes(
+        (await _generateExtraQrCode(index, movieName, time)).buffer.asInt8List(),
+      );
+    }
 
     try {
-      Share.shareFiles([
-        filePath,
-      ], text: ticketNumber, subject: "Sharing cinema ticket");
+      Share.shareFiles(filePaths,
+          text: ticketNumber, subject: "Sharing cinema ticket");
     } catch (e) {
       if (kDebugMode) print("Error: ${e.toString()}");
-      final newFilePath =
-          "${tempDir.path}/image${DateTime.now().toString()}.png";
-      await File(newFilePath).writeAsBytes(data.buffer.asInt8List());
-      print("Saving file instead to $newFilePath");
+      print("Saving files instead to ${filePaths}");
     }
     return true;
   }
