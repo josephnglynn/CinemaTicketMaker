@@ -5,6 +5,7 @@ import 'package:cinema_ticket_maker/ui/reference_container_viewer.dart';
 import 'package:cinema_ticket_maker/ui/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -45,15 +46,21 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                "Welcome To Cinema Ticket Maker",
-                style: TextStyle(fontSize: 30),
-                textAlign: TextAlign.center,
+            const Flexible(
+              child: FractionallySizedBox(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      "Welcome To Cinema Ticket Maker",
+                      style: TextStyle(fontSize: 30),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                heightFactor: 0.5,
               ),
             ),
             const Text(
@@ -102,11 +109,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-             child: Icon(
+              child: Icon(
                 Icons.leaderboard,
                 color: Theme.of(context).textTheme.bodyText1!.color,
               ),
-
             ),
             TextButton(
               onPressed: () {
@@ -116,11 +122,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-             child: Icon(
+              child: Icon(
                 Icons.settings,
                 color: Theme.of(context).textTheme.bodyText1!.color,
               ),
-
             ),
           ],
         ),
