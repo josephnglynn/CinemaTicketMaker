@@ -5,7 +5,6 @@ import 'package:cinema_ticket_maker/ui/reference_container_viewer.dart';
 import 'package:cinema_ticket_maker/ui/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
