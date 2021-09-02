@@ -155,7 +155,7 @@ class _ViewerPageState extends State<ViewerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("View Tickets Before Printing"),
+        title: Text("View Tickets Before ${Settings.shareInsteadOfPrint ? "Sharing" : "Printing"}"),
       ),
       body: SafeArea(
         child: data != null
