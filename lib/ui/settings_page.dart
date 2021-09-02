@@ -4,6 +4,7 @@ import 'package:cinema_ticket_maker/types/page_resolution.dart';
 import 'package:cinema_ticket_maker/types/page_size.dart';
 import 'package:cinema_ticket_maker/types/ticket_colors.dart';
 import 'package:cinema_ticket_maker/types/ticket_data.dart';
+import 'package:cinema_ticket_maker/ui/cinema_layout_editor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -214,6 +215,7 @@ class _SettingsPageState extends State<SettingsPage> {
             const Text(
               "Ticket background colors",
               style: headerStyle,
+              textAlign: TextAlign.center,
             ),
             Padding(
               padding: const EdgeInsets.all(20),
@@ -230,6 +232,7 @@ class _SettingsPageState extends State<SettingsPage> {
             const Text(
               "Cinema short name",
               style: headerStyle,
+              textAlign: TextAlign.center,
             ),
             TextField(
               textAlign: TextAlign.center,
@@ -245,12 +248,34 @@ class _SettingsPageState extends State<SettingsPage> {
             const Text(
               "Cinema long name",
               style: headerStyle,
+              textAlign: TextAlign.center,
             ),
             TextField(
               textAlign: TextAlign.center,
               controller: longNameController,
               onChanged: (value) async {
                 await Settings.setCinemaLong(value);
+                setState(() {});
+              },
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            const Text(
+              "Number of digits for reference number",
+              style: headerStyle,
+              textAlign: TextAlign.center,
+            ),
+            TextField(
+              textAlign: TextAlign.center,
+              controller: digitForRefController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (value) async {
+                if (value.isEmpty) return;
+                int parsed = int.parse(value);
+                if (parsed < 1) return;
+                await Settings.setDigitsForReferenceNumber(parsed);
                 setState(() {});
               },
             ),
@@ -362,23 +387,39 @@ class _SettingsPageState extends State<SettingsPage> {
             const SizedBox(
               height: 50,
             ),
-            const Text(
-              "Number of digits for reference number",
-              style: headerStyle,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Add seat and row numbers to each ticket",
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+                Switch(
+                  value: Settings.addSeatAndRowNumbers,
+                  onChanged: (value) async {
+                    await Settings.setAddSeatAndRowNumbers(value);
+                    setState(() {});
+                  },
+                ),
+              ],
             ),
-            TextField(
-              textAlign: TextAlign.center,
-              controller: digitForRefController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: (value) async {
-                if (value.isEmpty) return;
-                int parsed = int.parse(value);
-                if (parsed < 1) return;
-                await Settings.setDigitsForReferenceNumber(parsed);
-                setState(() {});
-              },
-            ),
+            Settings.addSeatAndRowNumbers
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 20),
+                    child: TextButton(
+                      child: const Text("Edit cinema layout"),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => CinemaLayoutEditor(),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : const SizedBox(),
             const SizedBox(
               height: 50,
             ),

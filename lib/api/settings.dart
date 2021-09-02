@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cinema_ticket_maker/types/cinema_layout.dart';
 import 'package:cinema_ticket_maker/types/page_size.dart';
 import 'package:cinema_ticket_maker/types/ref_number_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,7 @@ class Settings {
   static late String cinemaShort;
   static late bool sameRefForEachTicket;
   static late bool shareInsteadOfPrint;
+  static late bool addSeatAndRowNumbers;
   static late bool includeNames;
   static late bool extraQrCode;
   static late bool useQrCodes;
@@ -17,6 +19,7 @@ class Settings {
   static late double ticketScale;
   static late int digitsForReferenceNumber;
   static late List<RefContainer> referenceContainers;
+  static late CinemaLayout cinemaLayout;
 
   static String? getString(String key) => _prefs.getString(key);
 
@@ -95,15 +98,14 @@ class Settings {
     );
   }
 
-  static Future updateRefContainers() async =>
-      await _prefs.setString(
+  static Future updateRefContainers() async => await _prefs.setString(
         _refs,
         jsonEncode({
           "data": referenceContainers.map((e) => e.toJson()).toList(),
         }),
       );
 
-  static Future setUseQrCode(bool value) async  {
+  static Future setUseQrCode(bool value) async {
     if (!value && useQrCodes) {
       await setExtraQrCodes(false);
     }
@@ -122,6 +124,19 @@ class Settings {
     await _prefs.setBool(_extraQr, value);
   }
 
+  static Future setAddSeatAndRowNumbers(bool value) async {
+    addSeatAndRowNumbers = value;
+    await _prefs.setBool(_seatRowAndNumbers, value);
+  }
+
+  static Future updateCinemaLayout() async {
+    await _prefs.setString(
+      _cinemaLayout,
+      jsonEncode(
+        cinemaLayout.toJson(),
+      ),
+    );
+  }
 
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -137,6 +152,16 @@ class Settings {
     newUser = _prefs.getBool(_newUser) ?? true;
     useQrCodes = _prefs.getBool(_qrCodes) ?? true;
     extraQrCode = _prefs.getBool(_extraQr) ?? false;
+    addSeatAndRowNumbers = _prefs.getBool(_seatRowAndNumbers) ?? false;
+
+    final _cinemaLayoutStorage = _prefs.getString(_cinemaLayout);
+    if (_cinemaLayoutStorage == null) {
+      cinemaLayout = CinemaLayout([]);
+    } else {
+      cinemaLayout = CinemaLayout.fromJson(
+        jsonDecode(_cinemaLayoutStorage),
+      );
+    }
 
     final refNumberData = _prefs.getString(_refs);
     referenceContainers = refNumberData != null
@@ -158,4 +183,6 @@ class Settings {
   static const _refs = "refs";
   static const _qrCodes = "qrCodes";
   static const _extraQr = "extraQR";
+  static const _seatRowAndNumbers = "seatRowAndNumbers";
+  static const _cinemaLayout = "cinemaLayout";
 }
