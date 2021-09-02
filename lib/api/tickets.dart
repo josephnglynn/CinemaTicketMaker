@@ -425,10 +425,6 @@ class Tickets {
     final marginForQrCodeExtra =
         (size.width > size.height ? size.height : size.width) / 10;
 
-    final CinemaLayout cinemaLayout = CinemaLayout.fromJson(
-      Settings.cinemaLayout.toJson(),
-    );
-
     String seatNumber = "";
     int i = 0;
     int indexOfLoop = 0;
