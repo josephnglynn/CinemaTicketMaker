@@ -251,7 +251,7 @@ class Tickets {
 
   static List<RefNumber>? currentRefNumbers;
 
-  static Future<List<ByteData>> _generateTicketsToShareOld(
+  static Future<List<ByteData>> _generateTicketsToShare(
       TicketData ticketData, double scale, List<String>? name) async {
     List<ByteData> result = [];
     currentRefNumbers = [];
@@ -321,7 +321,7 @@ class Tickets {
     return result;
   }
 
-  static Future<List<ByteData>> _generateTicketsToPrintOld(
+  static Future<List<ByteData>> _generateTicketsToPrint(
       TicketData ticketData,
       String paperSize,
       double scale,
@@ -415,11 +415,11 @@ class Tickets {
     return result;
   }
 
-  static Future<List<ByteData>> generateOld(TicketData ticketData,
+  static Future<List<ByteData>> generate(TicketData ticketData,
       String paperSize, double scale, List<String>? name) async {
     final result = Settings.shareInsteadOfPrint
-        ? await _generateTicketsToShareOld(ticketData, scale, name)
-        : await _generateTicketsToPrintOld(ticketData, paperSize, scale, name);
+        ? await _generateTicketsToShare(ticketData, scale, name)
+        : await _generateTicketsToPrint(ticketData, paperSize, scale, name);
 
     await Settings.setRefContainers(
       RefContainer(

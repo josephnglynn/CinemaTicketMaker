@@ -136,7 +136,7 @@ class _ViewerPageState extends State<ViewerPage> {
   List<ByteData>? data;
 
   Future<void> generateTickets() async {
-    data = await Tickets.generateOld(
+    data = await Tickets.generate(
       TicketData(
         widget.movieName,
         widget.participants,

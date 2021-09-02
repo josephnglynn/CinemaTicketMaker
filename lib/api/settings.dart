@@ -14,6 +14,7 @@ class Settings {
   static late bool includeNames;
   static late bool extraQrCode;
   static late bool useQrCodes;
+  static late bool oldTheme;
   static late bool newUser;
   static late bool share;
   static late double ticketScale;
@@ -138,6 +139,10 @@ class Settings {
     );
   }
 
+  static Future setOldTheme(bool value) async {
+    oldTheme = value;
+  }
+
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
     (await getCustomPageSizes() ?? [])
@@ -153,6 +158,7 @@ class Settings {
     useQrCodes = _prefs.getBool(_qrCodes) ?? true;
     extraQrCode = _prefs.getBool(_extraQr) ?? false;
     addSeatAndRowNumbers = _prefs.getBool(_seatRowAndNumbers) ?? false;
+    oldTheme = _prefs.getBool(_oldTheme) ?? false;
 
     final _cinemaLayoutStorage = _prefs.getString(_cinemaLayout);
     if (_cinemaLayoutStorage == null) {
@@ -185,4 +191,5 @@ class Settings {
   static const _extraQr = "extraQR";
   static const _seatRowAndNumbers = "seatRowAndNumbers";
   static const _cinemaLayout = "cinemaLayout";
+  static const _oldTheme = "oldTheme";
 }
