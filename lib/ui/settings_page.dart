@@ -442,7 +442,7 @@ class TicketPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     double x = 0, y = 0;
-    Tickets.drawTicketComponent(
+    Tickets.drawTicketComponentOld(
       canvas,
       x,
       y,

@@ -40,7 +40,7 @@ class Tickets {
     return value;
   }
 
-  static void drawTicketComponent(Canvas canvas, double moveXBy, double moveYBy,
+  static void drawTicketComponentOld(Canvas canvas, double moveXBy, double moveYBy,
       TicketSize ticketSize, double scale, TicketData ticketData, String? name,
       {String? refNumber, String? row, String? number}) {
     refNumber ??=
@@ -241,7 +241,7 @@ class Tickets {
 
   static List<RefNumber>? currentRefNumbers;
 
-  static Future<List<ByteData>> _generateTicketsToShare(
+  static Future<List<ByteData>> _generateTicketsToShareOld(
       TicketData ticketData, double scale, List<String>? name) async {
     List<ByteData> result = [];
     currentRefNumbers = [];
@@ -259,7 +259,7 @@ class Tickets {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
 
-      Tickets.drawTicketComponent(
+      Tickets.drawTicketComponentOld(
         canvas,
         0,
         0,
@@ -311,7 +311,7 @@ class Tickets {
     return result;
   }
 
-  static Future<List<ByteData>> _generateTicketsToPrint(TicketData ticketData,
+  static Future<List<ByteData>> _generateTicketsToPrintOld(TicketData ticketData,
       String paperSize, double scale, List<String>? name) async {
     List<ByteData> result = [];
     currentRefNumbers = []; //reset any previous ones
@@ -338,7 +338,7 @@ class Tickets {
           _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
 
       while (ticketData.participants > 0) {
-        Tickets.drawTicketComponent(
+        Tickets.drawTicketComponentOld(
           canvas,
           x - pX,
           y - pY,
@@ -402,11 +402,11 @@ class Tickets {
     return result;
   }
 
-  static Future<List<ByteData>> generate(TicketData ticketData,
+  static Future<List<ByteData>> generateOld(TicketData ticketData,
       String paperSize, double scale, List<String>? name) async {
     final result = Settings.shareInsteadOfPrint
-        ? await _generateTicketsToShare(ticketData, scale, name)
-        : await _generateTicketsToPrint(ticketData, paperSize, scale, name);
+        ? await _generateTicketsToShareOld(ticketData, scale, name)
+        : await _generateTicketsToPrintOld(ticketData, paperSize, scale, name);
 
     await Settings.setRefContainers(
       RefContainer(
