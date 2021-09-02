@@ -4,6 +4,7 @@ import 'package:cinema_ticket_maker/types/page_resolution.dart';
 import 'package:cinema_ticket_maker/types/page_size.dart';
 import 'package:cinema_ticket_maker/types/ticket_colors.dart';
 import 'package:cinema_ticket_maker/types/ticket_data.dart';
+import 'package:cinema_ticket_maker/types/ticket_size.dart';
 import 'package:cinema_ticket_maker/ui/cinema_layout_editor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +56,11 @@ class _SettingsPageState extends State<SettingsPage> {
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.firstColorBackground,
-            (value) => setState(() {
-              TicketColors.setFirstColorBackground(value);
-            }),
+            TicketColors.oldTheme.firstColorBackground,
+            (value) async {
+              await TicketColors.setOldTheme();
+              setState(() {});
+            },
           );
         },
         child: Text(
@@ -68,16 +70,17 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.firstColorBackground,
+          backgroundColor: TicketColors.oldTheme.firstColorBackground,
         ),
       ),
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.lastColorBackground,
-            (value) => setState(() {
-              TicketColors.setLastColorBackground(value);
-            }),
+            TicketColors.oldTheme.secondColorBackground,
+            (value) async {
+              await TicketColors.setOldTheme();
+              setState(() {});
+            },
           );
         },
         child: Text(
@@ -87,16 +90,17 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.lastColorBackground,
+          backgroundColor: TicketColors.oldTheme.secondColorBackground,
         ),
       ),
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.primaryText,
-            (value) => setState(() {
-              TicketColors.setPrimaryTextColorBackground(value);
-            }),
+            TicketColors.oldTheme.primaryText,
+            (value) async {
+              await TicketColors.setOldTheme();
+              setState(() {});
+            },
           );
         },
         child: const Text(
@@ -106,16 +110,17 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.primaryText,
+          backgroundColor: TicketColors.oldTheme.primaryText,
         ),
       ),
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.secondaryText,
-            (value) => setState(() {
-              TicketColors.setSecondaryTextColorBackground(value);
-            }),
+            TicketColors.oldTheme.secondaryText,
+            (value) async {
+              await TicketColors.setOldTheme();
+              setState(() {});
+            },
           );
         },
         child: const Text(
@@ -125,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.secondaryText,
+          backgroundColor: TicketColors.oldTheme.secondaryText,
         ),
       ),
     ];
@@ -185,7 +190,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: Icon(
                     Icons.arrow_back_ios,
-                    color: TicketColors.primaryText,
+                    color:TicketColors.oldTheme.primaryText,
                   ),
                 ),
                 TextButton(
@@ -203,7 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: Icon(
                     Icons.arrow_forward_ios,
-                    color: TicketColors.primaryText,
+                    color: TicketColors.oldTheme.primaryText,
                   ),
                 ),
               ],
@@ -211,23 +216,27 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(
               height: 50 * Settings.ticketScale,
             ),
-            const Text(
-              "Ticket background colors",
-              style: headerStyle,
-              textAlign: TextAlign.center,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: MediaQuery.of(context).size.width >
-                      MediaQuery.of(context).size.height
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: children,
-                    )
-                  : Column(
-                      children: children,
-                    ),
-            ),
+            Settings.oldTheme
+                ? const Text(
+                    "Ticket background colors",
+                    style: headerStyle,
+                    textAlign: TextAlign.center,
+                  )
+                : const SizedBox(),
+            Settings.oldTheme
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: MediaQuery.of(context).size.width >
+                            MediaQuery.of(context).size.height
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: children,
+                          )
+                        : Column(
+                            children: children,
+                          ),
+                  )
+                : const SizedBox(),
             const Text(
               "Cinema short name",
               style: headerStyle,
@@ -390,6 +399,27 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
+                  "Use old ticket style",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                Switch(
+                  value: Settings.oldTheme,
+                  onChanged: (value) async {
+                    await Settings.setOldTheme(value);
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
                   "Add seat and row numbers to each ticket",
                   style: TextStyle(
                     fontSize: 15,
@@ -441,23 +471,39 @@ class TicketPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     double x = 0, y = 0;
-    Tickets.drawTicketComponentOld(
-      canvas,
-      x,
-      y,
-      Tickets.defaultTicketSize * scale,
-      scale,
-      TicketData(
-        "Star Wars",
-        1,
-        Settings.cinemaLong,
-        Settings.cinemaShort,
-        DateTime.now(),
-      ),
-      "John Smith",
-      row: "A",
-      number: "2"
-    );
+    Settings.oldTheme
+        ? Tickets.drawTicketComponentOld(
+            canvas,
+            x,
+            y,
+            Tickets.defaultTicketSize * scale,
+            scale,
+            TicketData(
+              "Star Wars",
+              1,
+              Settings.cinemaLong,
+              Settings.cinemaShort,
+              DateTime.now(),
+            ),
+            "John Smith",
+            row: "A",
+            number: "2")
+        : Tickets.drawTicketComponentNew(
+            canvas,
+            x,
+            y,
+            Tickets.newTicketSize * 2.3,
+            scale,
+            TicketData(
+              "Star Wars",
+              1,
+              Settings.cinemaLong,
+              Settings.cinemaShort,
+              DateTime.now(),
+            ),
+            "John Smith",
+            row: "A",
+            number: "2");
   }
 
   @override
