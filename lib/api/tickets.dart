@@ -40,9 +40,17 @@ class Tickets {
     return value;
   }
 
-  static void drawTicketComponentOld(Canvas canvas, double moveXBy, double moveYBy,
-      TicketSize ticketSize, double scale, TicketData ticketData, String? name,
-      {String? refNumber, String? row, String? number}) {
+  static void drawTicketComponentOld(
+      Canvas canvas,
+      double moveXBy,
+      double moveYBy,
+      TicketSize ticketSize,
+      double scale,
+      TicketData ticketData,
+      String? name,
+      {String? refNumber,
+      String? row,
+      String? number}) {
     refNumber ??=
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
     canvas.translate(moveXBy, moveYBy);
@@ -77,7 +85,9 @@ class Tickets {
 
     if (ticketSize.width < 50) return;
 
-    textPainter.fitCertainWidth(background.width - 20 * scale);
+    textPainter.fitCertainWidth(Settings.useQrCodes
+        ? ticketSize.width * 0.8
+        : background.width - 20 * scale);
     textPainter.paint(canvas, const Offset(10, 10) * scale);
 
     //VALID
@@ -311,8 +321,11 @@ class Tickets {
     return result;
   }
 
-  static Future<List<ByteData>> _generateTicketsToPrintOld(TicketData ticketData,
-      String paperSize, double scale, List<String>? name) async {
+  static Future<List<ByteData>> _generateTicketsToPrintOld(
+      TicketData ticketData,
+      String paperSize,
+      double scale,
+      List<String>? name) async {
     List<ByteData> result = [];
     currentRefNumbers = []; //reset any previous ones
 
@@ -432,7 +445,8 @@ class Tickets {
       if (Settings.cinemaLayout.rows.length == indexOfLoop) break;
       i += Settings.cinemaLayout.rows[indexOfLoop].length;
       if (i > index) {
-        seatNumber = "${Settings.cinemaLayout.rows[indexOfLoop].rowIdentifier}${Settings.cinemaLayout.rows[indexOfLoop].length}";
+        seatNumber =
+            "${Settings.cinemaLayout.rows[indexOfLoop].rowIdentifier}${Settings.cinemaLayout.rows[indexOfLoop].length}";
       }
       indexOfLoop++;
     }
