@@ -112,15 +112,6 @@ class Tickets {
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 120) * scale);
 
-    //DRAW SHORT NAME
-    style = style.copyWith(
-        fontSize: 24.55 * scale, color: TicketColors.secondaryText);
-    textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
-    textPainter.fitCertainWidth(background.width / 4);
-    textPainter.paint(
-      canvas,
-      Offset(225 * scale, -textPainter.height / 2 + 127.5 * scale),
-    );
 
     if (Settings.includeNames && name != null) {
       style = style.copyWith(fontSize: 12.95 * scale);
@@ -133,6 +124,8 @@ class Tickets {
       textPainter.fitCertainWidth(background.width / 4);
       textPainter.paint(canvas, const Offset(225, 68) * scale);
     }
+
+    double? xForShort;
 
     if (Settings.useQrCodes) {
 
@@ -153,9 +146,10 @@ class Tickets {
       for (double x = 0; x < qrCode.moduleCount; x++) {
         for (double y = 0; y < qrCode.moduleCount; y++) {
           if (qrCode.isDark(y.toInt(), x.toInt())) {
+            xForShort = x * scale * _qrCodeScale + 305 * scale;
             canvas.drawRect(
                 Rect.fromLTWH(
-                    x * scale * _qrCodeScale + 305 * scale,
+                    xForShort,
                     y * scale * _qrCodeScale + 10 * scale,
                     scale * _qrCodeScale,
                     scale * _qrCodeScale),
@@ -213,6 +207,16 @@ class Tickets {
       canvas.rotate(_degreesToRadians(-90));
       canvas.translate(-textPainter.height, 0);
     }
+
+    //DRAW SHORT NAME
+    style = style.copyWith(
+        fontSize: 24.55 * scale, color: TicketColors.secondaryText);
+    textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
+    textPainter.fitCertainWidth(background.width / 4);
+    textPainter.paint(
+      canvas,
+      Settings.useQrCodes ? Offset(xForShort! - textPainter.width, -textPainter.height / 2 + 127.5 * scale) :Offset(225 * scale, -textPainter.height / 2 + 127.5 * scale),
+    );
   }
 
   static const _qrCodeScale = 1.75;
