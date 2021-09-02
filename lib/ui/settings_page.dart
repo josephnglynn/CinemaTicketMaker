@@ -4,7 +4,6 @@ import 'package:cinema_ticket_maker/types/page_resolution.dart';
 import 'package:cinema_ticket_maker/types/page_size.dart';
 import 'package:cinema_ticket_maker/types/ticket_colors.dart';
 import 'package:cinema_ticket_maker/types/ticket_data.dart';
-import 'package:cinema_ticket_maker/types/ticket_size.dart';
 import 'package:cinema_ticket_maker/ui/cinema_layout_editor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -178,7 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      Settings.ticketScale -= 0.02;
+                      Settings.ticketScale -=1;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
@@ -196,7 +195,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      Settings.ticketScale += 0.02;
+                      Settings.ticketScale += 1;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
@@ -492,7 +491,7 @@ class TicketPainter extends CustomPainter {
             canvas,
             x,
             y,
-            Tickets.newTicketSize * 2.3,
+            Tickets.newTicketSize * scale,
             scale,
             TicketData(
               "Star Wars",

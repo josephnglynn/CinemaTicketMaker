@@ -16,11 +16,11 @@ void main() async {
       title: "Cinema Ticket Maker",
       theme: ThemeData.light().copyWith(
         appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
-        textTheme: GoogleFonts.openSansTextTheme(ThemeData.light().textTheme),
+        textTheme: GoogleFonts.dmSansTextTheme(ThemeData.light().textTheme),
       ),
       darkTheme: ThemeData.dark().copyWith(
         appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
-        textTheme: GoogleFonts.openSansTextTheme(ThemeData.dark().textTheme),
+        textTheme: GoogleFonts.dmSansTextTheme(ThemeData.dark().textTheme),
 
       ),
       themeMode: ThemeMode.system,

@@ -26,6 +26,7 @@ import 'package:qr/qr.dart';
 
 class Tickets {
   static const defaultTicketSize = TicketSize(350, 150);
+  static const newTicketSize = TicketSize(230, 100);
 
   //static double _radiansToDegrees(double radian) => radian * 180 / pi;
 
@@ -65,13 +66,13 @@ class Tickets {
 
     canvas.drawRect(
       background,
-      TicketColors.generateBackground(background),
+      TicketColors.oldTheme.generateBackgroundGradient(background),
     );
 
     //MOVIE NAME
     double fontSize = 30 * scale;
     TextStyle style = TextStyle(
-      color: TicketColors.primaryText,
+      color: TicketColors.oldTheme.primaryText,
       fontSize: fontSize,
     );
 
@@ -152,7 +153,7 @@ class Tickets {
             canvas.drawRect(
                 Rect.fromLTWH(xForShort, y * scale * _qrCodeScale + 10 * scale,
                     scale * _qrCodeScale, scale * _qrCodeScale),
-                Paint()..color = TicketColors.primaryText);
+                Paint()..color = TicketColors.oldTheme.primaryText);
           }
         }
       }
@@ -160,7 +161,7 @@ class Tickets {
       //SERIAL NUMBER
       style = style.copyWith(
         fontSize: 15 * scale,
-        color: TicketColors.primaryText,
+        color: TicketColors.oldTheme.primaryText,
       );
       textPainter.text = TextSpan(children: [
         TextSpan(
@@ -169,7 +170,7 @@ class Tickets {
         ),
         TextSpan(
           text: refNumber,
-          style: style.copyWith(color: TicketColors.secondaryText),
+          style: style.copyWith(color: TicketColors.oldTheme.secondaryText),
         ),
       ], style: style);
       // textPainter.fitCertainWidth(background.width / 4);
@@ -177,7 +178,7 @@ class Tickets {
 
       while (textPainter.width > ticketSize.height - 20) {
         style =
-            style.copyWith(fontSize: fontSize, color: TicketColors.primaryText);
+            style.copyWith(fontSize: fontSize, color: TicketColors.oldTheme.primaryText);
         fontSize -= 0.1;
         textPainter.text = TextSpan(
           children: [
@@ -187,7 +188,7 @@ class Tickets {
             ),
             TextSpan(
               text: refNumber,
-              style: style.copyWith(color: TicketColors.secondaryText),
+              style: style.copyWith(color: TicketColors.oldTheme.secondaryText),
             ),
           ],
           style: style,
@@ -209,7 +210,7 @@ class Tickets {
 
     //DRAW SHORT NAME
     style = style.copyWith(
-        fontSize: 24.55 * scale, color: TicketColors.secondaryText);
+        fontSize: 24.55 * scale, color: TicketColors.oldTheme.secondaryText);
     textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
@@ -224,7 +225,7 @@ class Tickets {
     if (Settings.addSeatAndRowNumbers) {
       //VALID
       style = style.copyWith(
-          fontSize: 12.52 * scale, color: TicketColors.primaryText);
+          fontSize: 12.52 * scale, color: TicketColors.oldTheme.primaryText);
       textPainter.text = TextSpan(text: "SEAT", style: style);
       textPainter.fitCertainWidth(background.width / 10);
       textPainter.paint(
@@ -235,7 +236,7 @@ class Tickets {
                   50 * scale));
 
       style = style.copyWith(
-          fontSize: 18.4 * scale, color: TicketColors.primaryText);
+          fontSize: 18.4 * scale, color: TicketColors.oldTheme.primaryText);
       textPainter.text = TextSpan(text: "$row$number", style: style);
       textPainter.fitCertainWidth(background.width / 4);
       textPainter.paint(
@@ -251,8 +252,124 @@ class Tickets {
 
   static List<RefNumber>? currentRefNumbers;
 
+  static void drawTicketComponentNew(
+    Canvas canvas,
+    double moveXBy,
+    double moveYBy,
+    TicketSize ticketSize,
+    double scale,
+    TicketData ticketData,
+    String? name, {
+    String? refNumber,
+    String? row,
+    String? number,
+    TicketSize ts = Tickets.defaultTicketSize,
+TicketColor ticketColor = TicketColors.newThemeDefault
+  }) {
+    refNumber ??=
+        _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
+
+    //Set Ticket Paints
+    final pFirstBackground = Paint()..color = ticketColor.firstColorBackground;
+    final pSecondBackground = Paint()..color = ticketColor.secondColorBackground;
+
+
+    double aThird = ticketSize.width * 0.3;
+
+    double aThirdPaddingW = aThird * 0.1;
+    double aThirdWithPaddingW = aThird * 0.80;
+    double aThirdH = ticketSize.height * 0.1;
+
+
+    canvas.drawRRect(RRect.fromLTRBR(0 ,0, aThird + 25, ticketSize.height, const Radius.circular(25)), pFirstBackground);
+    canvas.drawRect(Rect.fromLTRB( aThird , 0, ticketSize.width - 25, ticketSize.height), pSecondBackground);
+    canvas.drawRRect(RRect.fromLTRBR(ticketSize.width - 50 , 0, ticketSize.width, ticketSize.height, const Radius.circular(25)), pSecondBackground);
+
+    canvas.drawRect(Rect.fromLTWH(aThirdPaddingW, aThirdH, aThirdWithPaddingW, ticketSize.height * 0.05), pSecondBackground);
+
+    final painter = CustomTextPainter(
+      textDirection: TextDirection.ltr,
+    );
+
+    TextStyle style = TextStyle(fontSize: 4.95 * scale, color: ticketColor.secondColorBackground);
+    painter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
+    painter.fitCertainWidth(aThirdWithPaddingW);
+    painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2, ticketSize.height * 0.22));
+
+    canvas.drawLine(Offset(aThirdPaddingW, ticketSize.height * 0.35),Offset(aThirdPaddingW + aThirdWithPaddingW, ticketSize.height * 0.35), pSecondBackground);
+    canvas.drawLine(Offset(aThirdPaddingW, ticketSize.height * 0.7),Offset(aThirdPaddingW + aThirdWithPaddingW, ticketSize.height * 0.7), pSecondBackground);
+
+
+
+    if (Settings.useQrCodes) {
+      int i = 1;
+      QrCode qrCode;
+
+      while (true) {
+        qrCode = QrCode(i, QrErrorCorrectLevel.L);
+        qrCode.addData(name ?? "" + uniqueSplitter + refNumber);
+        try {
+          qrCode.make();
+          break;
+        } catch (e) {
+          i++;
+        }
+      }
+
+      double center = ((qrCode.moduleCount - 1) * scale) + aThirdPaddingW * 2 ;
+      for (double x = 0; x < qrCode.moduleCount; x++) {
+        for (double y = 0; y < qrCode.moduleCount; y++) {
+          if (qrCode.isDark(y.toInt(), x.toInt())) {
+            canvas.drawRect(
+                Rect.fromLTWH( x * scale + aThirdPaddingW, y * scale + ticketSize.height * 0.75,
+                    scale, scale),
+                Paint()..color = TicketColors.oldTheme.primaryText);
+          }
+        }
+      }
+
+      style = style.copyWith(fontSize: 2.55 * scale);
+      painter.text = TextSpan(text: "Reference Number:       ", style: style);
+      painter.fitCertainWidth(aThirdWithPaddingW / 2);
+      painter.paint(canvas, Offset(center, ticketSize.height * 0.875));
+
+
+      style = style.copyWith(fontSize: 4.1 * scale);
+       painter.text = TextSpan(text: "# $refNumber", style: style);
+      painter.fitCertainWidth(aThirdWithPaddingW / 2);
+      painter.paint(canvas, Offset(center, ticketSize.height * 0.92));
+    }
+
+    if (Settings.addSeatAndRowNumbers) {
+
+      double by5 = aThirdWithPaddingW / 3.575;
+
+      painter.text = TextSpan(text: "ROW", style: style);
+      painter.fitCertainWidth(by5);
+      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 - by5, ticketSize.height * 0.58));
+
+
+      painter.text = TextSpan(text: "SEAT", style: style);
+      painter.fitCertainWidth(by5);
+      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 + by5, ticketSize.height * 0.58));
+
+
+      style = style.copyWith(fontSize: 16.50 * scale, color: ticketColor.alt);
+      painter.text = TextSpan(text: row, style: style);
+      painter.fitCertainWidth(by5);
+      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 - by5, ticketSize.height * 0.4));
+
+      painter.text = TextSpan(text: number, style: style);
+      painter.fitCertainWidth(by5);
+      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 + by5, ticketSize.height * 0.4));
+    }
+
+  }
+
   static Future<List<ByteData>> _generateTicketsToShare(
-      TicketData ticketData, double scale, List<String>? name) async {
+    TicketData ticketData,
+    double scale,
+    List<String>? name, ) async {
     List<ByteData> result = [];
     currentRefNumbers = [];
 
@@ -260,7 +377,7 @@ class Tickets {
       Settings.cinemaLayout.toJson(),
     );
 
-    final tSize = Tickets.defaultTicketSize * scale;
+    final tSize = Settings.oldTheme ? Tickets.defaultTicketSize: Tickets.newTicketSize * scale;
 
     String refNumber =
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
@@ -269,22 +386,39 @@ class Tickets {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
 
-      Tickets.drawTicketComponentOld(
-        canvas,
-        0,
-        0,
-        tSize,
-        scale,
-        ticketData,
-        name != null ? name[ticketData.participants - 1] : null,
-        refNumber: refNumber,
-        row: cinemaLayout.rows.isEmpty
-            ? "Stan"
-            : cinemaLayout.rows[0].rowIdentifier,
-        number: cinemaLayout.rows.isEmpty
-            ? "ding"
-            : cinemaLayout.rows[0].length.toString(),
-      );
+      Settings.oldTheme
+          ? Tickets.drawTicketComponentOld(
+              canvas,
+              0,
+              0,
+              tSize,
+              scale,
+              ticketData,
+              name != null ? name[ticketData.participants - 1] : null,
+              refNumber: refNumber,
+              row: cinemaLayout.rows.isEmpty
+                  ? "Stan"
+                  : cinemaLayout.rows[0].rowIdentifier,
+              number: cinemaLayout.rows.isEmpty
+                  ? "ding"
+                  : cinemaLayout.rows[0].length.toString(),
+            )
+          : Tickets.drawTicketComponentNew(
+              canvas,
+              0,
+              0,
+              tSize,
+              scale,
+              ticketData,
+              name != null ? name[ticketData.participants - 1] : null,
+              refNumber: refNumber,
+              row: cinemaLayout.rows.isEmpty
+                  ? "Stan"
+                  : cinemaLayout.rows[0].rowIdentifier,
+              number: cinemaLayout.rows.isEmpty
+                  ? "ding"
+                  : cinemaLayout.rows[0].length.toString(),
+            );
 
       if (Settings.addSeatAndRowNumbers && cinemaLayout.rows.isNotEmpty) {
         if (cinemaLayout.rows[0].length <= 1) {
@@ -322,10 +456,10 @@ class Tickets {
   }
 
   static Future<List<ByteData>> _generateTicketsToPrint(
-      TicketData ticketData,
-      String paperSize,
-      double scale,
-      List<String>? name) async {
+    TicketData ticketData,
+    String paperSize,
+    double scale,
+    List<String>? name, ) async {
     List<ByteData> result = [];
     currentRefNumbers = []; //reset any previous ones
 
@@ -340,7 +474,7 @@ class Tickets {
           3508,
         );
 
-    final tSize = Tickets.defaultTicketSize * scale;
+final tSize = Settings.oldTheme ? Tickets.defaultTicketSize: Tickets.newTicketSize * scale;
 
     while (ticketData.participants > 0) {
       final recorder = ui.PictureRecorder();
@@ -351,22 +485,39 @@ class Tickets {
           _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
 
       while (ticketData.participants > 0) {
-        Tickets.drawTicketComponentOld(
-          canvas,
-          x - pX,
-          y - pY,
-          tSize,
-          scale,
-          ticketData,
-          name != null ? name[ticketData.participants - 1] : null,
-          refNumber: refNumber,
-          row: cinemaLayout.rows.isEmpty
-              ? "Stan"
-              : cinemaLayout.rows[0].rowIdentifier,
-          number: cinemaLayout.rows.isEmpty
-              ? "ding"
-              : cinemaLayout.rows[0].length.toString(),
-        );
+        Settings.oldTheme
+            ? Tickets.drawTicketComponentOld(
+                canvas,
+                0,
+                0,
+                tSize,
+                scale,
+                ticketData,
+                name != null ? name[ticketData.participants - 1] : null,
+                refNumber: refNumber,
+                row: cinemaLayout.rows.isEmpty
+                    ? "Stan"
+                    : cinemaLayout.rows[0].rowIdentifier,
+                number: cinemaLayout.rows.isEmpty
+                    ? "ding"
+                    : cinemaLayout.rows[0].length.toString(),
+              )
+            : Tickets.drawTicketComponentNew(
+                canvas,
+                0,
+                0,
+                tSize,
+                scale,
+                ticketData,
+                name != null ? name[ticketData.participants - 1] : null,
+                refNumber: refNumber,
+                row: cinemaLayout.rows.isEmpty
+                    ? "Stan"
+                    : cinemaLayout.rows[0].rowIdentifier,
+                number: cinemaLayout.rows.isEmpty
+                    ? "ding"
+                    : cinemaLayout.rows[0].length.toString(),
+              );
 
         if (Settings.addSeatAndRowNumbers && cinemaLayout.rows.isNotEmpty) {
           if (cinemaLayout.rows[0].length <= 1) {
