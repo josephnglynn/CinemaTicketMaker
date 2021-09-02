@@ -185,10 +185,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: Icon(
                     Icons.arrow_back_ios,
-                    color: Theme.of(context).textTheme.bodyText1!.color,
+                    color: TicketColors.primaryText,
                   ),
                 ),
-                Text("Scale: ${Settings.ticketScale}"),
                 TextButton(
                   onPressed: () async {
                     setState(() {
@@ -204,7 +203,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: Icon(
                     Icons.arrow_forward_ios,
-                    color: Theme.of(context).textTheme.bodyText1!.color,
+                    color: TicketColors.primaryText,
                   ),
                 ),
               ],
