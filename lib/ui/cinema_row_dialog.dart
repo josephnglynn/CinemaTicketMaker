@@ -121,8 +121,9 @@ Widget deleteRowForLayoutDialog(BuildContext context) {
                           Text("Row identifier: ${e.rowIdentifier}"),
                           Text("Row length: ${e.length}"),
                           IconButton(
-                            onPressed: () {
+                            onPressed: () async {
                               Settings.cinemaLayout.rows.remove(e);
+                              await Settings.updateCinemaLayout();
                               setState(() {});
                             },
                             icon: const Icon(Icons.delete),
