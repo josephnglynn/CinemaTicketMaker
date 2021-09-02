@@ -48,6 +48,8 @@ class Tickets {
     TicketData ticketData,
     String? name, {
     String? refNumber,
+        String? row,
+        String? number
   }) {
     refNumber ??=
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
@@ -215,8 +217,27 @@ class Tickets {
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
       canvas,
-      Settings.useQrCodes ? Offset(xForShort! - textPainter.width, -textPainter.height / 2 + 127.5 * scale) :Offset(225 * scale, -textPainter.height / 2 + 127.5 * scale),
+      Settings.useQrCodes ? Offset(xForShort! - textPainter.width, -textPainter.height / 2 + 127.5 * scale) :Offset(ticketSize.width - textPainter.width - 30 * scale, -textPainter.height / 2 + 127.5 * scale),
     );
+
+
+
+
+    if (Settings.addSeatAndRowNumbers) {
+
+      //VALID
+      style = style.copyWith(fontSize: 12.52 * scale, color: TicketColors.primaryText);
+      textPainter.text = TextSpan(text: "SEAT", style: style);
+      textPainter.fitCertainWidth(background.width / 10);
+      textPainter.paint(canvas, Settings.useQrCodes ? Offset(xForShort! - textPainter.width, 67 * scale) : Offset(ticketSize.width - textPainter.width - 30 * scale, 50 * scale));
+
+
+      style = style.copyWith(fontSize: 18.4 * scale, color: TicketColors.primaryText);
+      textPainter.text = TextSpan(text: "$row$number", style: style);
+      textPainter.fitCertainWidth(background.width / 4);
+      textPainter.paint(canvas,   Settings.useQrCodes ? Offset(xForShort! - textPainter.width, 84 * scale) : Offset(ticketSize.width - textPainter.width - 30 * scale, 67 * scale));
+    }
+
   }
 
   static const _qrCodeScale = 1.75;

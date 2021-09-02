@@ -413,7 +413,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => CinemaLayoutEditor(),
+                            builder: (context) => const CinemaLayoutEditor(),
                           ),
                         );
                       },
@@ -456,6 +456,8 @@ class TicketPainter extends CustomPainter {
         DateTime.now(),
       ),
       "John Smith",
+      row: "A",
+      number: "2"
     );
   }
 
