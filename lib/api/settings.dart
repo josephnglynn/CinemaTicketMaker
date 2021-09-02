@@ -130,12 +130,12 @@ class Settings {
     cinemaLong = getString(_cinemaLongLocation) ?? "ODEON CINEMAS";
     cinemaShort = getString(_cinemaShortLocation) ?? "ODEON";
     shareInsteadOfPrint = _prefs.getBool(_shareIOPL) ?? true;
-    includeNames = _prefs.getBool(_includeNamesLocation) ?? false;
+    includeNames = _prefs.getBool(_includeNamesLocation) ?? true;
     ticketScale = _prefs.getDouble(_ticketScaleLocation) ?? 2;
     sameRefForEachTicket = _prefs.getBool(_sameRefForEachTicket) ?? false;
     digitsForReferenceNumber = _prefs.getInt(_digitsForReferenceNumber) ?? 10;
     newUser = _prefs.getBool(_newUser) ?? true;
-    useQrCodes = _prefs.getBool(_qrCodes) ?? false;
+    useQrCodes = _prefs.getBool(_qrCodes) ?? true;
     extraQrCode = _prefs.getBool(_extraQr) ?? false;
 
     final refNumberData = _prefs.getString(_refs);
