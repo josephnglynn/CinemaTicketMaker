@@ -246,8 +246,9 @@ class Tickets {
     List<ByteData> result = [];
     currentRefNumbers = [];
 
-    final CinemaLayout cinemaLayout =
-        CinemaLayout.fromJson(Settings.cinemaLayout.toJson());
+    final CinemaLayout cinemaLayout = CinemaLayout.fromJson(
+      Settings.cinemaLayout.toJson(),
+    );
 
     final tSize = Tickets.defaultTicketSize * scale;
 
@@ -315,8 +316,9 @@ class Tickets {
     List<ByteData> result = [];
     currentRefNumbers = []; //reset any previous ones
 
-    final CinemaLayout cinemaLayout =
-    CinemaLayout.fromJson(Settings.cinemaLayout.toJson());
+    final CinemaLayout cinemaLayout = CinemaLayout.fromJson(
+      Settings.cinemaLayout.toJson(),
+    );
 
     //Find Paper Size
     final pageResolution = pageSizes[paperSize] ??
@@ -423,9 +425,25 @@ class Tickets {
     final marginForQrCodeExtra =
         (size.width > size.height ? size.height : size.width) / 10;
 
+    final CinemaLayout cinemaLayout = CinemaLayout.fromJson(
+      Settings.cinemaLayout.toJson(),
+    );
+
+    String seatNumber = "";
+    int i = 0;
+    int indexOfLoop = 0;
+    while (true) {
+      if (Settings.cinemaLayout.rows.length == indexOfLoop) break;
+      i += Settings.cinemaLayout.rows[indexOfLoop].length;
+      if (i > index) {
+        seatNumber = "${Settings.cinemaLayout.rows[indexOfLoop].rowIdentifier}${Settings.cinemaLayout.rows[indexOfLoop].length}";
+      }
+      indexOfLoop++;
+    }
+
     final textPainter = CustomTextPainter(
       text: TextSpan(
-        text: "$movieName - $time",
+        text: "$movieName - $time - $seatNumber",
         style: const TextStyle(color: Colors.black, fontSize: 30),
       ),
       textDirection: TextDirection.ltr,
@@ -442,7 +460,7 @@ class Tickets {
         Rect.fromLTWH(0, 0, whatByWhat, whatByWhat + textPainter.height),
         Paint()..color = Colors.white);
 
-    int i = 1;
+    i = 1;
     QrCode qrCode;
 
     while (true) {
