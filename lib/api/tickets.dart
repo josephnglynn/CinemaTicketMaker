@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:cinema_ticket_maker/api/settings.dart';
+import 'package:cinema_ticket_maker/types/cinema_layout.dart';
 import 'package:cinema_ticket_maker/types/custom_text_painter.dart';
 import 'package:cinema_ticket_maker/types/page_resolution.dart';
 import 'package:cinema_ticket_maker/types/page_size.dart';
@@ -39,18 +40,9 @@ class Tickets {
     return value;
   }
 
-  static void drawTicketComponent(
-    Canvas canvas,
-    double moveXBy,
-    double moveYBy,
-    TicketSize ticketSize,
-    double scale,
-    TicketData ticketData,
-    String? name, {
-    String? refNumber,
-        String? row,
-        String? number
-  }) {
+  static void drawTicketComponent(Canvas canvas, double moveXBy, double moveYBy,
+      TicketSize ticketSize, double scale, TicketData ticketData, String? name,
+      {String? refNumber, String? row, String? number}) {
     refNumber ??=
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
     canvas.translate(moveXBy, moveYBy);
@@ -114,7 +106,6 @@ class Tickets {
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 120) * scale);
 
-
     if (Settings.includeNames && name != null) {
       style = style.copyWith(fontSize: 12.95 * scale);
       textPainter.text = TextSpan(text: "Name", style: style);
@@ -130,7 +121,6 @@ class Tickets {
     double? xForShort;
 
     if (Settings.useQrCodes) {
-
       int i = 1;
       QrCode qrCode;
 
@@ -150,11 +140,8 @@ class Tickets {
           if (qrCode.isDark(y.toInt(), x.toInt())) {
             xForShort = x * scale * _qrCodeScale + 305 * scale;
             canvas.drawRect(
-                Rect.fromLTWH(
-                    xForShort,
-                    y * scale * _qrCodeScale + 10 * scale,
-                    scale * _qrCodeScale,
-                    scale * _qrCodeScale),
+                Rect.fromLTWH(xForShort, y * scale * _qrCodeScale + 10 * scale,
+                    scale * _qrCodeScale, scale * _qrCodeScale),
                 Paint()..color = TicketColors.primaryText);
           }
         }
@@ -217,27 +204,37 @@ class Tickets {
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
       canvas,
-      Settings.useQrCodes ? Offset(xForShort! - textPainter.width, -textPainter.height / 2 + 127.5 * scale) :Offset(ticketSize.width - textPainter.width - 30 * scale, -textPainter.height / 2 + 127.5 * scale),
+      Settings.useQrCodes
+          ? Offset(xForShort! - textPainter.width,
+              -textPainter.height / 2 + 127.5 * scale)
+          : Offset(ticketSize.width - textPainter.width - 30 * scale,
+              -textPainter.height / 2 + 127.5 * scale),
     );
 
-
-
-
     if (Settings.addSeatAndRowNumbers) {
-
       //VALID
-      style = style.copyWith(fontSize: 12.52 * scale, color: TicketColors.primaryText);
+      style = style.copyWith(
+          fontSize: 12.52 * scale, color: TicketColors.primaryText);
       textPainter.text = TextSpan(text: "SEAT", style: style);
       textPainter.fitCertainWidth(background.width / 10);
-      textPainter.paint(canvas, Settings.useQrCodes ? Offset(xForShort! - textPainter.width, 67 * scale) : Offset(ticketSize.width - textPainter.width - 30 * scale, 50 * scale));
+      textPainter.paint(
+          canvas,
+          Settings.useQrCodes
+              ? Offset(xForShort! - textPainter.width, 67 * scale)
+              : Offset(ticketSize.width - textPainter.width - 30 * scale,
+                  50 * scale));
 
-
-      style = style.copyWith(fontSize: 18.4 * scale, color: TicketColors.primaryText);
+      style = style.copyWith(
+          fontSize: 18.4 * scale, color: TicketColors.primaryText);
       textPainter.text = TextSpan(text: "$row$number", style: style);
       textPainter.fitCertainWidth(background.width / 4);
-      textPainter.paint(canvas,   Settings.useQrCodes ? Offset(xForShort! - textPainter.width, 84 * scale) : Offset(ticketSize.width - textPainter.width - 30 * scale, 67 * scale));
+      textPainter.paint(
+          canvas,
+          Settings.useQrCodes
+              ? Offset(xForShort! - textPainter.width, 84 * scale)
+              : Offset(ticketSize.width - textPainter.width - 30 * scale,
+                  67 * scale));
     }
-
   }
 
   static const _qrCodeScale = 1.75;
@@ -248,6 +245,9 @@ class Tickets {
       TicketData ticketData, double scale, List<String>? name) async {
     List<ByteData> result = [];
     currentRefNumbers = [];
+
+    final CinemaLayout cinemaLayout =
+        CinemaLayout.fromJson(Settings.cinemaLayout.toJson());
 
     final tSize = Tickets.defaultTicketSize * scale;
 
@@ -267,7 +267,21 @@ class Tickets {
         ticketData,
         name != null ? name[ticketData.participants - 1] : null,
         refNumber: refNumber,
+        row: cinemaLayout.rows.isEmpty
+            ? "Stan"
+            : cinemaLayout.rows[0].rowIdentifier,
+        number: cinemaLayout.rows.isEmpty
+            ? "ding"
+            : cinemaLayout.rows[0].length.toString(),
       );
+
+      if (Settings.addSeatAndRowNumbers && cinemaLayout.rows.isNotEmpty) {
+        if (cinemaLayout.rows[0].length <= 1) {
+          cinemaLayout.rows.removeAt(0);
+        } else if (cinemaLayout.rows.isNotEmpty) {
+          cinemaLayout.rows[0].length--;
+        }
+      }
 
       currentRefNumbers!.add(
         RefNumber(
@@ -301,6 +315,9 @@ class Tickets {
     List<ByteData> result = [];
     currentRefNumbers = []; //reset any previous ones
 
+    final CinemaLayout cinemaLayout =
+    CinemaLayout.fromJson(Settings.cinemaLayout.toJson());
+
     //Find Paper Size
     final pageResolution = pageSizes[paperSize] ??
         const PageResolution(
@@ -328,7 +345,21 @@ class Tickets {
           ticketData,
           name != null ? name[ticketData.participants - 1] : null,
           refNumber: refNumber,
+          row: cinemaLayout.rows.isEmpty
+              ? "Stan"
+              : cinemaLayout.rows[0].rowIdentifier,
+          number: cinemaLayout.rows.isEmpty
+              ? "ding"
+              : cinemaLayout.rows[0].length.toString(),
         );
+
+        if (Settings.addSeatAndRowNumbers && cinemaLayout.rows.isNotEmpty) {
+          if (cinemaLayout.rows[0].length <= 1) {
+            cinemaLayout.rows.removeAt(0);
+          } else if (cinemaLayout.rows.isNotEmpty) {
+            cinemaLayout.rows[0].length--;
+          }
+        }
 
         currentRefNumbers!.add(
           RefNumber(
@@ -401,14 +432,14 @@ class Tickets {
     );
     textPainter.fitCertainWidth(size.width - 2 * marginForQrCodeExtra);
 
-
     double whatByWhat = (size.width > size.height ? size.height : size.width) +
         marginForQrCodeExtra * 2;
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    canvas.drawRect(Rect.fromLTWH(0, 0, whatByWhat, whatByWhat + textPainter.height),
+    canvas.drawRect(
+        Rect.fromLTWH(0, 0, whatByWhat, whatByWhat + textPainter.height),
         Paint()..color = Colors.white);
 
     int i = 1;
@@ -416,7 +447,9 @@ class Tickets {
 
     while (true) {
       qrCode = QrCode(i, QrErrorCorrectLevel.L);
-      qrCode.addData(currentRefNumbers![index].name + uniqueSplitter + currentRefNumbers![index].number);
+      qrCode.addData(currentRefNumbers![index].name +
+          uniqueSplitter +
+          currentRefNumbers![index].number);
       try {
         qrCode.make();
         break;
@@ -424,9 +457,6 @@ class Tickets {
         i++;
       }
     }
-
-
-
 
     double scale =
         (whatByWhat - (marginForQrCodeExtra * 2)) / qrCode.moduleCount;
@@ -446,10 +476,12 @@ class Tickets {
       }
     }
 
-    textPainter.paint(canvas,  Offset( whatByWhat / 2 - textPainter.width / 2, 20));
+    textPainter.paint(
+        canvas, Offset(whatByWhat / 2 - textPainter.width / 2, 20));
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(whatByWhat.toInt(), whatByWhat.toInt() + textPainter.height.toInt());
+    final image = await picture.toImage(
+        whatByWhat.toInt(), whatByWhat.toInt() + textPainter.height.toInt());
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     return data!;
   }
@@ -482,7 +514,9 @@ class Tickets {
     await files[0].writeAsBytes(data.buffer.asInt8List());
     if (Settings.extraQrCode) {
       await files[1].writeAsBytes(
-        (await _generateExtraQrCode(index, movieName, time)).buffer.asInt8List(),
+        (await _generateExtraQrCode(index, movieName, time))
+            .buffer
+            .asInt8List(),
       );
     }
 
