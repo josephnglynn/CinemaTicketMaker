@@ -704,7 +704,7 @@ final tSize = Settings.oldTheme ? Tickets.defaultTicketSize: Tickets.newTicketSi
           text: ticketNumber, subject: "Sharing cinema ticket");
     } catch (e) {
       if (kDebugMode) print("Error: ${e.toString()}");
-      print("Saving files instead to ${filePaths}");
+      print("Saving files instead to $filePaths");
     }
     return true;
   }
