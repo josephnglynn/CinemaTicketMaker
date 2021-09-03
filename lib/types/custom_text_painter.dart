@@ -33,7 +33,6 @@ class CustomTextPainter extends TextPainter {
     var style = text!.style ?? const TextStyle();
     double fontSize = style.fontSize ?? 30;
     while (width > widthOfConstraint) {
-      print("CALLED LOOP");
       fontSize -= decrease;
       style = style.copyWith(fontSize: fontSize);
 

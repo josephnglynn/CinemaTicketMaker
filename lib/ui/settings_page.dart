@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+import 'package:async/async.dart';
 import 'package:cinema_ticket_maker/api/tickets.dart';
 import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:cinema_ticket_maker/types/page_resolution.dart';
@@ -24,8 +26,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final shortNameController = TextEditingController(text: Settings.cinemaShort);
   final longNameController = TextEditingController(text: Settings.cinemaLong);
-  final digitForRefController =
-      TextEditingController(text: Settings.digitsForReferenceNumber.toString());
+  final digitForRefController = TextEditingController(
+    text: Settings.digitsForReferenceNumber.toString(),
+  );
+
+  ui.Image? img;
+  bool updateScale = true;
+  CancelableOperation? cancelableOperation;
+  double previous= 0;
+  bool executingUpdate = false;
 
   void getColor(Color value, Function(Color) func) {
     showDialog(
@@ -96,13 +105,13 @@ class _SettingsPageState extends State<SettingsPage> {
         onPressed: () {
           getColor(
             TicketColors.theme.alt,
-                (value) async {
+            (value) async {
               await TicketColors.updateTheme();
               setState(() {});
             },
           );
         },
-        child:  Text(
+        child: Text(
           "Change alternative color",
           style: TextStyle(
             color: TicketColors.theme.firstColorBackground,
@@ -122,7 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           );
         },
-        child:  Text(
+        child: Text(
           "Change primary text color",
           style: TextStyle(
             color: TicketColors.theme.firstColorBackground,
@@ -154,6 +163,42 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     ];
 
+    final width = MediaQuery.of(context).size.width;
+    final scale = width /
+        (pageSizes["A4"] ??
+                const PageResolution(
+                  1,
+                  1,
+                ))
+            .width *
+        Settings.ticketScale;
+
+
+    if (updateScale) {
+      if (cancelableOperation != null) cancelableOperation!.cancel();
+      cancelableOperation = CancelableOperation.fromFuture(
+        Future(() async {
+          img = await Tickets.loadIcon(scale);
+          setState(() {
+            updateScale = false;
+          });
+        }),
+      );
+    }
+
+
+    if ( previous != width && !executingUpdate ) {
+      executingUpdate = true;
+      Future.delayed(const Duration(seconds: 1), () async {
+        img = await Tickets.loadIcon(scale);
+        setState(() {
+          updateScale = false;
+          executingUpdate = false;
+          previous = width;
+        });
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
@@ -179,14 +224,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: Colors.purple,
                   ),
                   child: CustomPaint(
-                    painter: TicketPainter(constraints.maxWidth /
-                        (pageSizes["A4"] ??
-                                const PageResolution(
-                                  1,
-                                  1,
-                                ))
-                            .width *
-                        Settings.ticketScale),
+                    painter: TicketPainter(scale, img),
                   ),
                 ),
               ),
@@ -198,12 +236,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () async {
                     setState(() {
                       Settings.ticketScale -= 1;
+                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
                       Settings.ticketScale -= 0.2;
+                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
@@ -216,12 +256,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () async {
                     setState(() {
                       Settings.ticketScale += 1;
+                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
                       Settings.ticketScale += 0.2;
+                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
@@ -459,11 +501,20 @@ class _SettingsPageState extends State<SettingsPage> {
 
 class TicketPainter extends CustomPainter {
   final double scale;
+  final ui.Image? image;
 
-  TicketPainter(this.scale);
+  TicketPainter(this.scale, this.image);
+
+  final data = TicketData(
+    "Star Wars: Episode V - The Empire Strikes Back",
+    1,
+    Settings.cinemaLong,
+    Settings.cinemaShort,
+    DateTime.now(),
+  );
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(Canvas canvas, Size size) async {
     double x = 0, y = 0;
     Settings.oldTheme
         ? Tickets.drawTicketComponentOld(
@@ -472,32 +523,23 @@ class TicketPainter extends CustomPainter {
             y,
             Tickets.defaultTicketSize * scale,
             scale,
-            TicketData(
-              "Star Wars",
-              1,
-              Settings.cinemaLong,
-              Settings.cinemaShort,
-              DateTime.now(),
-            ),
+            data,
             "John Smith",
             row: "A",
-            number: "2")
+            number: "2",
+          )
         : Tickets.drawTicketComponentNew(
             canvas,
             x,
             y,
             Tickets.newTicketSize * scale,
             scale,
-            TicketData(
-              "Star Wars",
-              1,
-              Settings.cinemaLong,
-              Settings.cinemaShort,
-              DateTime.now(),
-            ),
+            data,
             "John Smith",
+            image,
             row: "A",
-            number: "2");
+            number: "2",
+          );
   }
 
   @override
