@@ -13,7 +13,6 @@ class Settings {
   static late bool addSeatAndRowNumbers;
   static late bool includeNames;
   static late bool extraQrCode;
-  static late bool useQrCodes;
   static late bool oldTheme;
   static late bool newUser;
   static late bool share;
@@ -106,18 +105,9 @@ class Settings {
         }),
       );
 
-  static Future setUseQrCode(bool value) async {
-    if (!value && useQrCodes) {
-      await setExtraQrCodes(false);
-    }
-    useQrCodes = value;
-    await _prefs.setBool(_qrCodes, value);
-  }
+
 
   static Future setExtraQrCodes(bool value) async {
-    if (value && !useQrCodes) {
-      await setUseQrCode(true);
-    }
     if (value && !shareInsteadOfPrint) {
       await setShareInsteadOfPrint(true);
     }
@@ -155,7 +145,6 @@ class Settings {
     sameRefForEachTicket = _prefs.getBool(_sameRefForEachTicket) ?? false;
     digitsForReferenceNumber = _prefs.getInt(_digitsForReferenceNumber) ?? 10;
     newUser = _prefs.getBool(_newUser) ?? true;
-    useQrCodes = _prefs.getBool(_qrCodes) ?? true;
     extraQrCode = _prefs.getBool(_extraQr) ?? false;
     addSeatAndRowNumbers = _prefs.getBool(_seatRowAndNumbers) ?? false;
     oldTheme = _prefs.getBool(_oldTheme) ?? false;
@@ -187,7 +176,6 @@ class Settings {
   static const _digitsForReferenceNumber = "digitsForReferenceNumber";
   static const _newUser = "new-user";
   static const _refs = "refs";
-  static const _qrCodes = "qrCodes";
   static const _extraQr = "extraQR";
   static const _seatRowAndNumbers = "seatRowAndNumbers";
   static const _cinemaLayout = "cinemaLayout";

@@ -86,9 +86,8 @@ class Tickets {
 
     if (ticketSize.width < 50) return;
 
-    textPainter.fitCertainWidth(Settings.useQrCodes
-        ? ticketSize.width * 0.8
-        : background.width - 20 * scale);
+    textPainter.fitCertainWidth(ticketSize.width * 0.8);
+
     textPainter.paint(canvas, const Offset(10, 10) * scale);
 
     //VALID
@@ -104,7 +103,6 @@ class Tickets {
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 67) * scale);
 
-
     //COMMENCING
     style = style.copyWith(fontSize: 11.5 * scale);
     textPainter.text = TextSpan(text: "COMMENCING", style: style);
@@ -118,102 +116,44 @@ class Tickets {
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 120) * scale);
 
-
-
-
     if (Settings.includeNames && name != null) {
       style = style.copyWith(fontSize: 12.95 * scale);
       textPainter.text = TextSpan(text: "Name", style: style);
       textPainter.fitCertainWidth(background.width / 10);
       textPainter.paint(canvas, const Offset(225, 49) * scale);
 
-
-
       style = style.copyWith(fontSize: 17.05 * scale);
       textPainter.text = TextSpan(text: name, style: style);
       textPainter.fitCertainWidth(background.width / 4);
       textPainter.paint(canvas, const Offset(225, 68) * scale);
-
-
     }
 
     double? xForShort;
 
-    if (Settings.useQrCodes) {
-      int i = 1;
-      QrCode qrCode;
+    int i = 1;
+    QrCode qrCode;
 
-      while (true) {
-        qrCode = QrCode(i, QrErrorCorrectLevel.L);
-        qrCode.addData(name ?? "" + uniqueSplitter + refNumber);
-        try {
-          qrCode.make();
-          break;
-        } catch (e) {
-          i++;
+    while (true) {
+      qrCode = QrCode(i, QrErrorCorrectLevel.L);
+      qrCode.addData(name ?? "" + uniqueSplitter + refNumber);
+      try {
+        qrCode.make();
+        break;
+      } catch (e) {
+        i++;
+      }
+    }
+
+    for (double x = 0; x < qrCode.moduleCount; x++) {
+      for (double y = 0; y < qrCode.moduleCount; y++) {
+        if (qrCode.isDark(y.toInt(), x.toInt())) {
+          xForShort = x * scale * _qrCodeScale + 305 * scale;
+          canvas.drawRect(
+              Rect.fromLTWH(xForShort, y * scale * _qrCodeScale + 10 * scale,
+                  scale * _qrCodeScale, scale * _qrCodeScale),
+              Paint()..color = TicketColors.theme.primaryText);
         }
       }
-
-      for (double x = 0; x < qrCode.moduleCount; x++) {
-        for (double y = 0; y < qrCode.moduleCount; y++) {
-          if (qrCode.isDark(y.toInt(), x.toInt())) {
-            xForShort = x * scale * _qrCodeScale + 305 * scale;
-            canvas.drawRect(
-                Rect.fromLTWH(xForShort, y * scale * _qrCodeScale + 10 * scale,
-                    scale * _qrCodeScale, scale * _qrCodeScale),
-                Paint()..color = TicketColors.theme.primaryText);
-          }
-        }
-      }
-    } else {
-      //SERIAL NUMBER
-      style = style.copyWith(
-        fontSize: 15 * scale,
-        color: TicketColors.theme.primaryText,
-      );
-      textPainter.text = TextSpan(children: [
-        TextSpan(
-          text: "REF:  ",
-          style: style,
-        ),
-        TextSpan(
-          text: refNumber,
-          style: style.copyWith(color: TicketColors.theme.secondaryText),
-        ),
-      ], style: style);
-      // textPainter.fitCertainWidth(background.width / 4);
-      textPainter.layout();
-
-      while (textPainter.width > ticketSize.height - 20) {
-        style =
-            style.copyWith(fontSize: fontSize, color: TicketColors.theme.primaryText);
-        fontSize -= 0.1;
-        textPainter.text = TextSpan(
-          children: [
-            TextSpan(
-              text: "REF:  ",
-              style: style,
-            ),
-            TextSpan(
-              text: refNumber,
-              style: style.copyWith(color: TicketColors.theme.secondaryText),
-            ),
-          ],
-          style: style,
-        );
-        textPainter.layout();
-      }
-
-      canvas.translate(textPainter.height, 0);
-      canvas.rotate(_degreesToRadians(90));
-
-      textPainter.paint(
-          canvas,
-          Offset((ticketSize.height - textPainter.width) / 2,
-              -ticketSize.width + textPainter.height));
-
-      canvas.rotate(_degreesToRadians(-90));
-      canvas.translate(-textPainter.height, 0);
     }
 
     //DRAW SHORT NAME
@@ -223,14 +163,9 @@ class Tickets {
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
       canvas,
-      Settings.useQrCodes
-          ? Offset(xForShort! - textPainter.width,
-              -textPainter.height / 2 + 127.5 * scale)
-          : Offset(ticketSize.width - textPainter.width - 30 * scale,
-              -textPainter.height / 2 + 127.5 * scale),
+      Offset(xForShort! - textPainter.width,
+          -textPainter.height / 2 + 127.5 * scale),
     );
-
-
 
     if (Settings.addSeatAndRowNumbers) {
       //VALID
@@ -239,22 +174,14 @@ class Tickets {
       textPainter.text = TextSpan(text: "SEAT", style: style);
       textPainter.fitCertainWidth(background.width / 10);
       textPainter.paint(
-          canvas,
-          Settings.useQrCodes
-              ? Offset(xForShort! - textPainter.width, 67 * scale)
-              : Offset(ticketSize.width - textPainter.width - 30 * scale,
-                  50 * scale));
+          canvas, Offset(xForShort - textPainter.width, 67 * scale));
 
       style = style.copyWith(
           fontSize: 18.4 * scale, color: TicketColors.theme.primaryText);
       textPainter.text = TextSpan(text: "$row$number", style: style);
       textPainter.fitCertainWidth(background.width / 4);
       textPainter.paint(
-          canvas,
-          Settings.useQrCodes
-              ? Offset(xForShort! - textPainter.width, 84 * scale)
-              : Offset(ticketSize.width - textPainter.width - 30 * scale,
-                  67 * scale));
+          canvas, Offset(xForShort - textPainter.width, 84 * scale));
     }
   }
 
@@ -279,9 +206,10 @@ class Tickets {
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
 
     //Set Ticket Paints
-    final pFirstBackground = Paint()..color = TicketColors.theme.firstColorBackground;
-    final pSecondBackground = Paint()..color = TicketColors.theme.secondColorBackground;
-
+    final pFirstBackground = Paint()
+      ..color = TicketColors.theme.firstColorBackground;
+    final pSecondBackground = Paint()
+      ..color = TicketColors.theme.secondColorBackground;
 
     double aThird = ticketSize.width * 0.3;
 
@@ -289,95 +217,125 @@ class Tickets {
     double aThirdWithPaddingW = aThird * 0.80;
     double aThirdH = ticketSize.height * 0.1;
 
-
-    canvas.drawRRect(RRect.fromLTRBR(0 ,0, aThird + 25, ticketSize.height, const Radius.circular(25)), pFirstBackground);
-    canvas.drawRect(Rect.fromLTRB( aThird , 0, ticketSize.width - 25, ticketSize.height), pSecondBackground);
-    canvas.drawRRect(RRect.fromLTRBR(ticketSize.width - 50 , 0, ticketSize.width, ticketSize.height, const Radius.circular(25)), pSecondBackground);
-    canvas.drawRect(Rect.fromLTWH(aThirdPaddingW, aThirdH, aThirdWithPaddingW, ticketSize.height * 0.05), pSecondBackground);
+    canvas.drawRRect(
+        RRect.fromLTRBR(
+            0, 0, aThird + 25, ticketSize.height, const Radius.circular(25)),
+        pFirstBackground);
+    canvas.drawRect(
+        Rect.fromLTRB(aThird, 0, ticketSize.width - 25, ticketSize.height),
+        pSecondBackground);
+    canvas.drawRRect(
+        RRect.fromLTRBR(ticketSize.width - 50, 0, ticketSize.width,
+            ticketSize.height, const Radius.circular(25)),
+        pSecondBackground);
+    canvas.drawRect(
+        Rect.fromLTWH(aThirdPaddingW, aThirdH, aThirdWithPaddingW,
+            ticketSize.height * 0.05),
+        pSecondBackground);
 
     final painter = CustomTextPainter(
       textDirection: TextDirection.ltr,
     );
 
-    TextStyle style = TextStyle(fontSize: 4.95 * scale, color: TicketColors.theme.secondColorBackground);
+    TextStyle style = TextStyle(
+        fontSize: 4.95 * scale,
+        color: TicketColors.theme.secondColorBackground);
     painter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     painter.fitCertainWidth(aThirdWithPaddingW);
-    painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2, ticketSize.height * 0.22));
+    painter.paint(
+        canvas,
+        Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2,
+            ticketSize.height * 0.22));
 
-    canvas.drawLine(Offset(aThirdPaddingW, ticketSize.height * 0.35),Offset(aThirdPaddingW + aThirdWithPaddingW, ticketSize.height * 0.35), pSecondBackground);
-    canvas.drawLine(Offset(aThirdPaddingW, ticketSize.height * 0.7),Offset(aThirdPaddingW + aThirdWithPaddingW, ticketSize.height * 0.7), pSecondBackground);
+    canvas.drawLine(
+        Offset(aThirdPaddingW, ticketSize.height * 0.35),
+        Offset(aThirdPaddingW + aThirdWithPaddingW, ticketSize.height * 0.35),
+        pSecondBackground);
+    canvas.drawLine(
+        Offset(aThirdPaddingW, ticketSize.height * 0.7),
+        Offset(aThirdPaddingW + aThirdWithPaddingW, ticketSize.height * 0.7),
+        pSecondBackground);
 
+    int i = 1;
+    QrCode qrCode;
 
-
-    if (Settings.useQrCodes) {
-      int i = 1;
-      QrCode qrCode;
-
-      while (true) {
-        qrCode = QrCode(i, QrErrorCorrectLevel.L);
-        qrCode.addData(name ?? "" + uniqueSplitter + refNumber);
-        try {
-          qrCode.make();
-          break;
-        } catch (e) {
-          i++;
-        }
+    while (true) {
+      qrCode = QrCode(i, QrErrorCorrectLevel.L);
+      qrCode.addData(name ?? "" + uniqueSplitter + refNumber);
+      try {
+        qrCode.make();
+        break;
+      } catch (e) {
+        i++;
       }
-
-      double center = ((qrCode.moduleCount - 1) * scale) + aThirdPaddingW * 2 ;
-      for (double x = 0; x < qrCode.moduleCount; x++) {
-        for (double y = 0; y < qrCode.moduleCount; y++) {
-          if (qrCode.isDark(y.toInt(), x.toInt())) {
-            canvas.drawRect(
-                Rect.fromLTWH( x * scale + aThirdPaddingW, y * scale + ticketSize.height * 0.75,
-                    scale, scale),
-                Paint()..color = TicketColors.theme.primaryText);
-          }
-        }
-      }
-
-      style = style.copyWith(fontSize: 2.55 * scale);
-      painter.text = TextSpan(text: "Reference Number:       ", style: style);
-      painter.fitCertainWidth(aThirdWithPaddingW / 2);
-      painter.paint(canvas, Offset(center, ticketSize.height * 0.875));
-
-
-      style = style.copyWith(fontSize: 4.1 * scale);
-       painter.text = TextSpan(text: "# $refNumber", style: style);
-      painter.fitCertainWidth(aThirdWithPaddingW / 2);
-      painter.paint(canvas, Offset(center, ticketSize.height * 0.92));
     }
 
-    if (Settings.addSeatAndRowNumbers) {
+    double center = ((qrCode.moduleCount - 1) * scale) + aThirdPaddingW * 2;
+    for (double x = 0; x < qrCode.moduleCount; x++) {
+      for (double y = 0; y < qrCode.moduleCount; y++) {
+        if (qrCode.isDark(y.toInt(), x.toInt())) {
+          canvas.drawRect(
+              Rect.fromLTWH(x * scale + aThirdPaddingW,
+                  y * scale + ticketSize.height * 0.75, scale, scale),
+              Paint()..color = TicketColors.theme.primaryText);
+        }
+      }
+    }
 
+    style = style.copyWith(fontSize: 2.55 * scale);
+    painter.text = TextSpan(text: "Reference Number:       ", style: style);
+    painter.fitCertainWidth(aThirdWithPaddingW / 2);
+    painter.paint(canvas, Offset(center, ticketSize.height * 0.875));
+
+    style = style.copyWith(fontSize: 4.1 * scale);
+    painter.text = TextSpan(text: "# $refNumber", style: style);
+    painter.fitCertainWidth(aThirdWithPaddingW / 2);
+    painter.paint(canvas, Offset(center, ticketSize.height * 0.92));
+
+    if (Settings.addSeatAndRowNumbers) {
       double by5 = aThirdWithPaddingW / 3.575;
 
       painter.text = TextSpan(text: "ROW", style: style);
       painter.fitCertainWidth(by5);
-      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 - by5, ticketSize.height * 0.58));
-
+      painter.paint(
+          canvas,
+          Offset(
+              aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 - by5,
+              ticketSize.height * 0.58));
 
       painter.text = TextSpan(text: "SEAT", style: style);
       painter.fitCertainWidth(by5);
-      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 + by5, ticketSize.height * 0.58));
+      painter.paint(
+          canvas,
+          Offset(
+              aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 + by5,
+              ticketSize.height * 0.58));
 
-
-      style = style.copyWith(fontSize: 16.50 * scale, color: TicketColors.theme.alt);
+      style = style.copyWith(
+          fontSize: 16.50 * scale, color: TicketColors.theme.alt);
       painter.text = TextSpan(text: row, style: style);
       painter.fitCertainWidth(by5);
-      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 - by5, ticketSize.height * 0.4));
+      painter.paint(
+          canvas,
+          Offset(
+              aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 - by5,
+              ticketSize.height * 0.4));
 
       painter.text = TextSpan(text: number, style: style);
       painter.fitCertainWidth(by5);
-      painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 + by5, ticketSize.height * 0.4));
+      painter.paint(
+          canvas,
+          Offset(
+              aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 + by5,
+              ticketSize.height * 0.4));
     }
-
   }
 
   static Future<List<ByteData>> _generateTicketsToShare(
     TicketData ticketData,
     double scale,
-    List<String>? name, ) async {
+    List<String>? name,
+  ) async {
     List<ByteData> result = [];
     currentRefNumbers = [];
 
@@ -385,7 +343,9 @@ class Tickets {
       Settings.cinemaLayout.toJson(),
     );
 
-    final tSize = Settings.oldTheme ? Tickets.defaultTicketSize: Tickets.newTicketSize * scale;
+    final tSize = Settings.oldTheme
+        ? Tickets.defaultTicketSize
+        : Tickets.newTicketSize * scale;
 
     String refNumber =
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
@@ -467,7 +427,8 @@ class Tickets {
     TicketData ticketData,
     String paperSize,
     double scale,
-    List<String>? name, ) async {
+    List<String>? name,
+  ) async {
     List<ByteData> result = [];
     currentRefNumbers = []; //reset any previous ones
 
@@ -482,7 +443,9 @@ class Tickets {
           3508,
         );
 
-final tSize = Settings.oldTheme ? Tickets.defaultTicketSize: Tickets.newTicketSize * scale;
+    final tSize = Settings.oldTheme
+        ? Tickets.defaultTicketSize
+        : Tickets.newTicketSize * scale;
 
     while (ticketData.participants > 0) {
       final recorder = ui.PictureRecorder();

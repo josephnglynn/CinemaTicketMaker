@@ -372,27 +372,6 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Add qr code to tickets",
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-                Switch(
-                  value: Settings.useQrCodes,
-                  onChanged: (value) async {
-                    await Settings.setUseQrCode(value);
-                    setState(() {});
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
                   "Add extra qr code when sharing",
                   style: TextStyle(
                     fontSize: 20,
