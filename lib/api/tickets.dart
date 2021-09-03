@@ -98,11 +98,12 @@ class Tickets {
     textPainter.paint(canvas, const Offset(10, 50) * scale);
 
     //VALID WHERE
-    style = style.copyWith(fontSize: 18.4 * scale);
+    style = style.copyWith(fontSize: 16 * scale);
     textPainter.text =
         TextSpan(text: "AT ${ticketData.cinemaName}", style: style);
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 67) * scale);
+
 
     //COMMENCING
     style = style.copyWith(fontSize: 11.5 * scale);
@@ -111,11 +112,14 @@ class Tickets {
     textPainter.paint(canvas, const Offset(10, 100) * scale);
 
     //COMMENCING AT
-    style = style.copyWith(fontSize: 12.17 * scale);
+    style = style.copyWith(fontSize: 11 * scale);
     textPainter.text = TextSpan(
         text: "On ${utils.DateFormat().format(ticketData.date)}", style: style);
     textPainter.fitCertainWidth(background.width / 2);
     textPainter.paint(canvas, const Offset(10, 120) * scale);
+
+
+
 
     if (Settings.includeNames && name != null) {
       style = style.copyWith(fontSize: 12.95 * scale);
@@ -123,10 +127,14 @@ class Tickets {
       textPainter.fitCertainWidth(background.width / 10);
       textPainter.paint(canvas, const Offset(225, 49) * scale);
 
+
+
       style = style.copyWith(fontSize: 17.05 * scale);
       textPainter.text = TextSpan(text: name, style: style);
       textPainter.fitCertainWidth(background.width / 4);
       textPainter.paint(canvas, const Offset(225, 68) * scale);
+
+
     }
 
     double? xForShort;
@@ -210,7 +218,7 @@ class Tickets {
 
     //DRAW SHORT NAME
     style = style.copyWith(
-        fontSize: 24.55 * scale, color: TicketColors.theme.secondaryText);
+        fontSize: 20 * scale, color: TicketColors.theme.secondaryText);
     textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
@@ -221,6 +229,8 @@ class Tickets {
           : Offset(ticketSize.width - textPainter.width - 30 * scale,
               -textPainter.height / 2 + 127.5 * scale),
     );
+
+
 
     if (Settings.addSeatAndRowNumbers) {
       //VALID
