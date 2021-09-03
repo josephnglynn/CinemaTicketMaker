@@ -55,9 +55,9 @@ class _SettingsPageState extends State<SettingsPage> {
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.oldTheme.firstColorBackground,
+            TicketColors.theme.firstColorBackground,
             (value) async {
-              await TicketColors.setOldTheme();
+              await TicketColors.updateTheme();
               setState(() {});
             },
           );
@@ -65,19 +65,19 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Text(
           "Change first color",
           style: TextStyle(
-            color: Theme.of(context).textTheme.bodyText1!.color,
+            color: TicketColors.theme.primaryText,
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.oldTheme.firstColorBackground,
+          backgroundColor: TicketColors.theme.firstColorBackground,
         ),
       ),
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.oldTheme.secondColorBackground,
+            TicketColors.theme.secondColorBackground,
             (value) async {
-              await TicketColors.setOldTheme();
+              await TicketColors.updateTheme();
               setState(() {});
             },
           );
@@ -85,51 +85,71 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Text(
           "Change second color",
           style: TextStyle(
-            color: Theme.of(context).textTheme.bodyText1!.color,
+            color: TicketColors.theme.secondaryText,
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.oldTheme.secondColorBackground,
+          backgroundColor: TicketColors.theme.secondColorBackground,
         ),
       ),
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.oldTheme.primaryText,
-            (value) async {
-              await TicketColors.setOldTheme();
+            TicketColors.theme.alt,
+                (value) async {
+              await TicketColors.updateTheme();
               setState(() {});
             },
           );
         },
-        child: const Text(
+        child:  Text(
+          "Change alternative color",
+          style: TextStyle(
+            color: TicketColors.theme.firstColorBackground,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          backgroundColor: TicketColors.theme.alt,
+        ),
+      ),
+      TextButton(
+        onPressed: () {
+          getColor(
+            TicketColors.theme.primaryText,
+            (value) async {
+              await TicketColors.updateTheme();
+              setState(() {});
+            },
+          );
+        },
+        child:  Text(
           "Change primary text color",
           style: TextStyle(
-            color: Colors.white,
+            color: TicketColors.theme.firstColorBackground,
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.oldTheme.primaryText,
+          backgroundColor: TicketColors.theme.primaryText,
         ),
       ),
       TextButton(
         onPressed: () {
           getColor(
-            TicketColors.oldTheme.secondaryText,
+            TicketColors.theme.secondaryText,
             (value) async {
-              await TicketColors.setOldTheme();
+              await TicketColors.updateTheme();
               setState(() {});
             },
           );
         },
-        child: const Text(
+        child: Text(
           "Change secondary text color",
           style: TextStyle(
-            color: Colors.black,
+            color: TicketColors.theme.secondColorBackground,
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: TicketColors.oldTheme.secondaryText,
+          backgroundColor: TicketColors.theme.secondaryText,
         ),
       ),
     ];
@@ -177,7 +197,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      Settings.ticketScale -=1;
+                      Settings.ticketScale -= 1;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
@@ -189,7 +209,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: Icon(
                     Icons.arrow_back_ios,
-                    color:TicketColors.oldTheme.primaryText,
+                    color: TicketColors.theme.primaryText,
                   ),
                 ),
                 TextButton(
@@ -207,7 +227,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: Icon(
                     Icons.arrow_forward_ios,
-                    color: TicketColors.oldTheme.primaryText,
+                    color: TicketColors.theme.primaryText,
                   ),
                 ),
               ],
@@ -215,27 +235,23 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(
               height: 50 * Settings.ticketScale,
             ),
-            Settings.oldTheme
-                ? const Text(
-                    "Ticket background colors",
-                    style: headerStyle,
-                    textAlign: TextAlign.center,
-                  )
-                : const SizedBox(),
-            Settings.oldTheme
-                ? Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: MediaQuery.of(context).size.width >
-                            MediaQuery.of(context).size.height
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: children,
-                          )
-                        : Column(
-                            children: children,
-                          ),
-                  )
-                : const SizedBox(),
+            const Text(
+              "Ticket background colors",
+              style: headerStyle,
+              textAlign: TextAlign.center,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: children,
+                    )
+                  : Column(
+                      children: children,
+                    ),
+            ),
             const Text(
               "Cinema short name",
               style: headerStyle,

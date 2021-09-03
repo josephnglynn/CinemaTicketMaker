@@ -5,14 +5,9 @@ import 'package:cinema_ticket_maker/api/settings.dart';
 import 'package:flutter/material.dart';
 
 class TicketColors {
-  static TicketColor _generateOldTheme() =>const TicketColor(
-      Color.fromRGBO(232, 139, 58, 1),
-      Color.fromRGBO(170, 54, 232, 1),
-      Colors.black,
-      Colors.white,
-      Colors.blue);
 
-  static const  TicketColor newThemeDefault = TicketColor(
+
+  static TicketColor newThemeDefault() => const TicketColor(
         Colors.white,
         Colors.blueGrey,
         Colors.blueGrey,
@@ -20,27 +15,27 @@ class TicketColors {
         Colors.deepOrange,
       );
 
-  static Future setOldTheme() async {
+  static Future updateTheme() async {
     Settings.setString(
-      _oldThemeLocation,
+      _themeLocation,
       jsonEncode(
-        oldTheme.toJson(),
+        theme.toJson(),
       ),
     );
   }
 
   static Future init() async {
-    final oldThemeStorage = Settings.getString(_oldThemeLocation);
-    if (oldThemeStorage == null) {
-      oldTheme = _generateOldTheme();
+    final themeStorage = Settings.getString(_themeLocation);
+    if (themeStorage == null) {
+      theme = newThemeDefault();
       return;
     }
-    oldTheme = TicketColor.fromJson(jsonDecode(oldThemeStorage));
+    theme = TicketColor.fromJson(jsonDecode(themeStorage));
   }
 
-  static late TicketColor oldTheme;
+  static late TicketColor theme;
 
-  static const _oldThemeLocation = "old-theme";
+  static const _themeLocation = "old-theme";
 }
 
 class TicketColor {

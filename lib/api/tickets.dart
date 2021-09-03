@@ -66,13 +66,13 @@ class Tickets {
 
     canvas.drawRect(
       background,
-      TicketColors.oldTheme.generateBackgroundGradient(background),
+      TicketColors.theme.generateBackgroundGradient(background),
     );
 
     //MOVIE NAME
     double fontSize = 30 * scale;
     TextStyle style = TextStyle(
-      color: TicketColors.oldTheme.primaryText,
+      color: TicketColors.theme.primaryText,
       fontSize: fontSize,
     );
 
@@ -153,7 +153,7 @@ class Tickets {
             canvas.drawRect(
                 Rect.fromLTWH(xForShort, y * scale * _qrCodeScale + 10 * scale,
                     scale * _qrCodeScale, scale * _qrCodeScale),
-                Paint()..color = TicketColors.oldTheme.primaryText);
+                Paint()..color = TicketColors.theme.primaryText);
           }
         }
       }
@@ -161,7 +161,7 @@ class Tickets {
       //SERIAL NUMBER
       style = style.copyWith(
         fontSize: 15 * scale,
-        color: TicketColors.oldTheme.primaryText,
+        color: TicketColors.theme.primaryText,
       );
       textPainter.text = TextSpan(children: [
         TextSpan(
@@ -170,7 +170,7 @@ class Tickets {
         ),
         TextSpan(
           text: refNumber,
-          style: style.copyWith(color: TicketColors.oldTheme.secondaryText),
+          style: style.copyWith(color: TicketColors.theme.secondaryText),
         ),
       ], style: style);
       // textPainter.fitCertainWidth(background.width / 4);
@@ -178,7 +178,7 @@ class Tickets {
 
       while (textPainter.width > ticketSize.height - 20) {
         style =
-            style.copyWith(fontSize: fontSize, color: TicketColors.oldTheme.primaryText);
+            style.copyWith(fontSize: fontSize, color: TicketColors.theme.primaryText);
         fontSize -= 0.1;
         textPainter.text = TextSpan(
           children: [
@@ -188,7 +188,7 @@ class Tickets {
             ),
             TextSpan(
               text: refNumber,
-              style: style.copyWith(color: TicketColors.oldTheme.secondaryText),
+              style: style.copyWith(color: TicketColors.theme.secondaryText),
             ),
           ],
           style: style,
@@ -210,7 +210,7 @@ class Tickets {
 
     //DRAW SHORT NAME
     style = style.copyWith(
-        fontSize: 24.55 * scale, color: TicketColors.oldTheme.secondaryText);
+        fontSize: 24.55 * scale, color: TicketColors.theme.secondaryText);
     textPainter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     textPainter.fitCertainWidth(background.width / 4);
     textPainter.paint(
@@ -225,7 +225,7 @@ class Tickets {
     if (Settings.addSeatAndRowNumbers) {
       //VALID
       style = style.copyWith(
-          fontSize: 12.52 * scale, color: TicketColors.oldTheme.primaryText);
+          fontSize: 12.52 * scale, color: TicketColors.theme.primaryText);
       textPainter.text = TextSpan(text: "SEAT", style: style);
       textPainter.fitCertainWidth(background.width / 10);
       textPainter.paint(
@@ -236,7 +236,7 @@ class Tickets {
                   50 * scale));
 
       style = style.copyWith(
-          fontSize: 18.4 * scale, color: TicketColors.oldTheme.primaryText);
+          fontSize: 18.4 * scale, color: TicketColors.theme.primaryText);
       textPainter.text = TextSpan(text: "$row$number", style: style);
       textPainter.fitCertainWidth(background.width / 4);
       textPainter.paint(
@@ -264,14 +264,13 @@ class Tickets {
     String? row,
     String? number,
     TicketSize ts = Tickets.defaultTicketSize,
-TicketColor ticketColor = TicketColors.newThemeDefault
   }) {
     refNumber ??=
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
 
     //Set Ticket Paints
-    final pFirstBackground = Paint()..color = ticketColor.firstColorBackground;
-    final pSecondBackground = Paint()..color = ticketColor.secondColorBackground;
+    final pFirstBackground = Paint()..color = TicketColors.theme.firstColorBackground;
+    final pSecondBackground = Paint()..color = TicketColors.theme.secondColorBackground;
 
 
     double aThird = ticketSize.width * 0.3;
@@ -284,14 +283,13 @@ TicketColor ticketColor = TicketColors.newThemeDefault
     canvas.drawRRect(RRect.fromLTRBR(0 ,0, aThird + 25, ticketSize.height, const Radius.circular(25)), pFirstBackground);
     canvas.drawRect(Rect.fromLTRB( aThird , 0, ticketSize.width - 25, ticketSize.height), pSecondBackground);
     canvas.drawRRect(RRect.fromLTRBR(ticketSize.width - 50 , 0, ticketSize.width, ticketSize.height, const Radius.circular(25)), pSecondBackground);
-
     canvas.drawRect(Rect.fromLTWH(aThirdPaddingW, aThirdH, aThirdWithPaddingW, ticketSize.height * 0.05), pSecondBackground);
 
     final painter = CustomTextPainter(
       textDirection: TextDirection.ltr,
     );
 
-    TextStyle style = TextStyle(fontSize: 4.95 * scale, color: ticketColor.secondColorBackground);
+    TextStyle style = TextStyle(fontSize: 4.95 * scale, color: TicketColors.theme.secondColorBackground);
     painter.text = TextSpan(text: ticketData.cinemaNameShort, style: style);
     painter.fitCertainWidth(aThirdWithPaddingW);
     painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2, ticketSize.height * 0.22));
@@ -323,7 +321,7 @@ TicketColor ticketColor = TicketColors.newThemeDefault
             canvas.drawRect(
                 Rect.fromLTWH( x * scale + aThirdPaddingW, y * scale + ticketSize.height * 0.75,
                     scale, scale),
-                Paint()..color = TicketColors.oldTheme.primaryText);
+                Paint()..color = TicketColors.theme.primaryText);
           }
         }
       }
@@ -354,7 +352,7 @@ TicketColor ticketColor = TicketColors.newThemeDefault
       painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 + by5, ticketSize.height * 0.58));
 
 
-      style = style.copyWith(fontSize: 16.50 * scale, color: ticketColor.alt);
+      style = style.copyWith(fontSize: 16.50 * scale, color: TicketColors.theme.alt);
       painter.text = TextSpan(text: row, style: style);
       painter.fitCertainWidth(by5);
       painter.paint(canvas, Offset(aThirdPaddingW + (aThirdWithPaddingW - painter.width) / 2 - by5, ticketSize.height * 0.4));
