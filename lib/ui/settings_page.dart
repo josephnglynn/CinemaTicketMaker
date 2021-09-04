@@ -235,14 +235,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      Settings.ticketScale -= 1;
+                      Settings.ticketScale -= 0.5;
                       updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
-                      Settings.ticketScale -= 0.2;
+                      Settings.ticketScale -= 0.1;
                       updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
@@ -255,14 +255,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      Settings.ticketScale += 1;
+                      Settings.ticketScale += 0.5;
                       updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
-                      Settings.ticketScale += 0.2;
+                      Settings.ticketScale += 0.1;
                       updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);

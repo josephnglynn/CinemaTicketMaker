@@ -231,9 +231,10 @@ class Tickets {
       Rect.fromLTRB(aThird, 0, ticketSize.width - radius, ticketSize.height),
       pSecondBackground,
     );
+
     canvas.drawRRect(
       RRect.fromLTRBR(
-        ticketSize.width - 50,
+        ticketSize.width - 44.87605 * scale,
         0,
         ticketSize.width,
         ticketSize.height,
@@ -316,7 +317,6 @@ class Tickets {
     painter.fitCertainWidth(aThirdWithPaddingW / 2);
     painter.paint(canvas, Offset(center, ticketSize.height * 0.81));
 
-
     painter.text = TextSpan(text: "# $refNumber", style: style);
     painter.fitCertainWidth(aThirdWithPaddingW / 2);
     painter.paint(canvas, Offset(center, ticketSize.height * 0.92));
@@ -388,12 +388,24 @@ class Tickets {
           ticketSize.height * 0.75),
     );
 
+
+
     if (image != null) {
-      canvas.drawImage(
-          image,
-          Offset(aThird * 2 - image.width / 2 + aThirdPaddingW * 1.5,
-              ticketSize.height * 0.10),
-          Paint());
+      double width = image.width * scale * 0.01;
+      paintImage(
+        canvas: canvas,
+        rect: Rect.fromLTWH(
+           -width * 0.5 + aThird * 2 + aThirdPaddingW * 1.5,
+          scale * 8,
+          width,
+          image.height * scale * 0.01,
+        ),
+        image: image,
+        scale: 0.00000001,
+        isAntiAlias: true,
+        filterQuality: FilterQuality.high,
+
+      );
     }
   }
 
@@ -405,9 +417,7 @@ class Tickets {
     return (await (await ui.instantiateImageCodec(
       Uint8List.fromList(
         _image.encodePng(
-          _image.copyResize(img,
-              width: (img.width * scale * 0.04).toInt(),
-              height: (img.height * scale * 0.04).toInt()),
+          img,
         ),
       ),
     ))
@@ -428,10 +438,10 @@ class Tickets {
     );
 
     final tSize = Settings.oldTheme
-        ? Tickets.defaultTicketSize
+        ? Tickets.defaultTicketSize * scale
         : Tickets.newTicketSize * scale;
 
-    final img = await loadIcon(scale);
+    final img = Settings.oldTheme ? null : await loadIcon(scale);
 
     String refNumber =
         _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
@@ -531,8 +541,10 @@ class Tickets {
         );
 
     final tSize = Settings.oldTheme
-        ? Tickets.defaultTicketSize
+        ? Tickets.defaultTicketSize * scale
         : Tickets.newTicketSize * scale;
+
+    final img = Settings.oldTheme ? null : await loadIcon(scale);
 
     while (ticketData.participants > 0) {
       final recorder = ui.PictureRecorder();
@@ -541,8 +553,6 @@ class Tickets {
 
       String refNumber =
           _generateRandomListOfNumbers(Settings.digitsForReferenceNumber);
-
-      final img = await loadIcon(scale);
 
       while (ticketData.participants > 0) {
         Settings.oldTheme
