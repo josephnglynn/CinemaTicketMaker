@@ -31,10 +31,14 @@ class _SettingsPageState extends State<SettingsPage> {
   );
 
   ui.Image? img;
-  bool updateScale = true;
-  CancelableOperation? cancelableOperation;
-  double previous= 0;
+  double previous = 0;
   bool executingUpdate = false;
+
+  @override
+  void initState() {
+    Future(() async => img = await Tickets.loadIcon(1));
+    super.initState();
+  }
 
   void getColor(Color value, Function(Color) func) {
     showDialog(
@@ -173,32 +177,6 @@ class _SettingsPageState extends State<SettingsPage> {
             .width *
         Settings.ticketScale;
 
-
-    if (updateScale) {
-      if (cancelableOperation != null) cancelableOperation!.cancel();
-      cancelableOperation = CancelableOperation.fromFuture(
-        Future(() async {
-          img = await Tickets.loadIcon(scale);
-          setState(() {
-            updateScale = false;
-          });
-        }),
-      );
-    }
-
-
-    if ( previous != width && !executingUpdate ) {
-      executingUpdate = true;
-      Future.delayed(const Duration(seconds: 1), () async {
-        img = await Tickets.loadIcon(scale);
-        setState(() {
-          updateScale = false;
-          executingUpdate = false;
-          previous = width;
-        });
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
@@ -236,14 +214,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () async {
                     setState(() {
                       Settings.ticketScale -= 0.5;
-                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
                       Settings.ticketScale -= 0.1;
-                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
@@ -256,14 +232,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () async {
                     setState(() {
                       Settings.ticketScale += 0.5;
-                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
                   onLongPress: () async {
                     setState(() {
                       Settings.ticketScale += 0.1;
-                      updateScale = true;
                     });
                     await Settings.setTicketScale(Settings.ticketScale);
                   },
@@ -275,7 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             SizedBox(
-              height: 50 * Settings.ticketScale,
+              height: 20 * Settings.ticketScale,
             ),
             const Text(
               "Ticket background colors",
