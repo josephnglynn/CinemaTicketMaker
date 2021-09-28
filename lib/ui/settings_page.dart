@@ -36,8 +36,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    Future(() async => img = await Tickets.loadIcon(1));
     super.initState();
+    Future(() async => img = await Tickets.loadIcon(1));
   }
 
   void getColor(Color value, Function(Color) func) {
